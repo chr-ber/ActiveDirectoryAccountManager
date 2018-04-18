@@ -50,14 +50,12 @@ $Global:syncHash = [hashtable]::Synchronized(@{})
 $Global:syncHash.activeRunspaces = 0
 
 # Load xaml and 
-$XamlMainWindow = Set-XML("$Global:scriptLocation\resources\ucpm.xaml")
+$XamlMainWindow = Set-XML("$Global:scriptLocation\resources\main.xaml")
 $Reader = (New-Object System.Xml.XmlNodeReader $XamlMainWindow)
 $Global:syncHash.Window = [Windows.Markup.XamlReader]::Load($Reader)
 
 $Global:syncHash.Window.Title = "Ultimate Complaiant Password Manager"
  
-# XAML objects
-$button = $syncHash.Window.FindName("Btn")
 # Grid for displaying results
 $Global:userListView = $syncHash.Window.FindName("userListView")
 $Global:adminListView = $syncHash.Window.FindName("adminListView")
@@ -134,7 +132,7 @@ $Global:toggleIsTop = $syncHash.Window.FindName("windowStayTop")
     Set-PasswordOverlay -dataContext $sender.DataContext
 }
 
-$button.Add_Click(
+<# $button.Add_Click(
     {
         Switch ($tabControl.SelectedItem.Name)
         {
@@ -149,7 +147,7 @@ $button.Add_Click(
                 Get-OffboardingAccounts
             }
         }
-    })
+    }) #>
 
 $Global:btnFlyOut.Add_Click(
     {

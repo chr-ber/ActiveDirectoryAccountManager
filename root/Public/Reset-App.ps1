@@ -39,16 +39,19 @@
     # Build offboarding object
     foreach ($domain in $rootConfig)
     {
+        # For each domain we create an prepared object selectable in the gui and and invisible stock item
+        # This is needed since powershell can not modify pscustomobjects asynchronously in PoSh V3 and
+        # Is unable to add additional objects from a runspace 
         for ($i = 0; $i -lt 2; $i ++)
         {
             if ($i -eq 1)
             {
-                $Global:dbOffboarding += @([pscustomobject]@{IsEnabled = "true"; IsChecked = "true"; domainName = $domain.domainName; samAccount = ""; accountStatus = ""; pswdVer = ""; pswdVerifyBtnText = "Set password"; pswdVerifyBtnVisible = "Hidden"; pswdVerifyBtnEnabled = $true; dc = $domain.dc; domainBase = $domain.domainBase; officeDomain = $domain.officeDomain; adObject = ""; userAccount = ""; userStatus = ""; userDisplayName = ""; userOu = ""; userMemberOf = ""; })
+                $Global:dbOffboarding += @([pscustomobject]@{IsEnabled = "true"; IsChecked = "true"; domainName = $domain.domainName; samAccount = ""; accountStatus = ""; pswdVer = ""; pswdVerifyBtnText = "Set password"; pswdVerifyBtnVisible = "Hidden"; pswdVerifyBtnEnabled = $true; dc = $domain.dc; domainBase = $domain.domainBase; officeDomain = $domain.officeDomain; adObject = ""; userAccount = ""; userStatus = ""; userDisplayName = ""; userOu = ""; userMemberOf = ""; userDistName = ""; offboardingText = ""; })
 
             }
             else
             {
-                $Global:dbOffboarding += @([pscustomobject]@{IsVisible = "Hidden"; IsEnabled = ""; IsChecked = ""; domainName = ""; samAccount = ""; accountStatus = ""; pswdVer = ""; pswdVerifyBtnText = "Set password"; pswdVerifyBtnVisible = "Hidden"; pswdVerifyBtnEnabled = $true; dc = ""; domainBase = ""; officeDomain = ""; adObject = ""; userAccount = ""; userStatus = ""; userDisplayName = ""; userOu = ""; userMemberOf = ""; })
+                $Global:dbOffboarding += @([pscustomobject]@{IsVisible = "Hidden"; IsEnabled = ""; IsChecked = ""; domainName = ""; samAccount = ""; accountStatus = ""; pswdVer = ""; pswdVerifyBtnText = "Set password"; pswdVerifyBtnVisible = "Hidden"; pswdVerifyBtnEnabled = $true; dc = ""; domainBase = ""; officeDomain = ""; adObject = ""; userAccount = ""; userStatus = ""; userDisplayName = ""; userOu = ""; userMemberOf = ""; userDistName = ""; offboardingText = ""; })
             }
         }
     }
@@ -63,6 +66,7 @@
 
     $Global:dbAdmin = $Script:dbAdmin | Sort-Object -Property DomainName -Descending
 
+    # Add pscustomojbect to each listview and refresh the gui
     $Global:userListView.ItemsSource = $Global:dbUser
     $Global:userListView.Items.Refresh()
 

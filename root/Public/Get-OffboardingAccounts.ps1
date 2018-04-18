@@ -13,7 +13,7 @@
         # Skip domain entries that are not selected
         If ($domain.isChecked -eq $true)
         {
-            Set-RunSpaceOffboarding  -offboardingListView $Global:offboardingListView -dbOffboarding $Global:dbOffboarding -syncHash $syncHash -adminAccount $env:USERNAME -userAccount $user -dc $domain.dc -domainName $domain.domainName -domainBase $domain.domainBase -officeDomain $domain.officeDomain -task search
+            Set-RunSpaceOffboarding -offboardingListView $Global:offboardingListView -dbOffboarding $Global:dbOffboarding -syncHash $syncHash -adminAccount $env:USERNAME -userAccount $user -dc $domain.dc -domainName $domain.domainName -domainBase $domain.domainBase -officeDomain $domain.officeDomain -task search
         }
     }
 }
