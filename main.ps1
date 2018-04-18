@@ -94,16 +94,34 @@ $btnAccent | ForEach-Object { $_.Add_Click( {Set-AccentColor $this})}
 $btnThemeWhite.Add_Click( {Set-ThemeSkin $this})
 $btnThemeBlack.Add_Click( {Set-ThemeSkin $this})
 
-# Password Current 
-$passwordBoxCurrent = $syncHash.Window.FindName("passwordBoxCurrent")
-$btnCurrentPswdTest = $syncHash.Window.FindName("btnCurrentPswdTest")
-$btnCurrentPswdTest.IsEnabled = $false
+#######################################
+######## Offboarding tab 
+##########################
 
+$userBoxDisable = $syncHash.Window.FindName("userBoxDisable")
+$userBoxDisable.Add_TextChanged( { Set-BtnEnabledByTextLength -current $userBoxDisable.Text.Length -minimum 5 -maximum 7 -button $btnDisable})
+$btnDisable = $syncHash.Window.FindName("btnDisable")
+$btnDisable.Add_Click( {Get-OffboardingAccounts})
+
+$passwordBoxCurrent = $syncHash.Window.FindName("passwordBoxCurrent")
+$passwordBoxCurrent.Add_PasswordChanged( { TextBoxPasswordHandler $_.KeyCode $passwordBoxCurrent.SecurePassword $btnAdminPswd})
+$btnAdminPswd = $syncHash.Window.FindName("btnAdminPswd")
+
+$userBoxTicket = $syncHash.Window.FindName("userBoxTicket")
+$userBoxTicket.Add_TextChanged( { Set-BtnEnabledByTicketNumber -text $userBoxTicket.Text -button $btnOffboard})
+$btnOffboard = $syncHash.Window.FindName("btnOffboard")
+
+
+
+#$btnCurrentPswdTest = $syncHash.Window.FindName("btnCurrentPswdTest")
+#$btnCurrentPswdTest.IsEnabled = $false
+
+#######################################
+######## Fly out
+##########################
 # toggle switch
 $Global:toggleIsTop = $syncHash.Window.FindName("windowStayTop")
 
-# TEST
-$btnDialog = $syncHash.Window.FindName("btnDialog")
 
 
 #######################################
@@ -139,11 +157,16 @@ $Global:btnFlyOut.Add_Click(
     })
 
 
-$btnDialog.Add_Click(
+$btnAdminPswd.Add_Click(
     {	
-        #Test-AllCredentials
+        Test-AllCredentials
+    })
+
+$btnOffboard.Add_Click(
+    {	
         Disable-OffboardingAccounts
     })
+
 
 $Global:toggleIsTop.Add_Click( {Set-WindowStayTop})
 

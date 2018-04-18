@@ -160,24 +160,60 @@
     <StackPanel Orientation="Vertical">
         <StackPanel Orientation="Horizontal" Height="200" VerticalAlignment="Top">
             <StackPanel Width="225" Height="200" Orientation="Vertical" VerticalAlignment="Top">
-				<Label Content="User SamAccount" FontSize="16" Margin="0,10,0,0" FontWeight="Medium"/>
-				<TextBox x:Name="userBoxDisable" Width="180"></TextBox>		
-				<Label Content="Admin Password" FontSize="16" Margin="0,0,0,0" FontWeight="Medium"/>
+				<Label Content="User to offboard" FontSize="16" Margin="0,10,0,0" FontWeight="Medium"/>
+                <TextBox Controls:TextBoxHelper.ButtonCommand="{Binding TextBoxButtonCmd, Mode=OneWay}"
+                         ContextMenu="{x:Null}"
+                         Width="180"
+                         x:Name="userBoxDisable">
+                    <TextBox.Style>
+                        <Style BasedOn="{StaticResource MetroTextBox}" TargetType="{x:Type TextBox}">
+                            <Setter Property="Controls:TextBoxHelper.ClearTextButton" Value="True" />
+                            <Style.Triggers>
+                                <Trigger Property="Controls:TextBoxHelper.HasText" Value="False">
+                                    <Setter Property="Controls:TextBoxHelper.ClearTextButton" Value="False" />
+                                    <Setter Property="Controls:TextBoxHelper.Watermark" Value="Enter users SamAccountName..." />
+                                </Trigger>
+                                <Trigger Property="Controls:TextBoxHelper.HasText" Value="True">
+                                    <Setter Property="Controls:TextBoxHelper.ClearTextButton" Value="True" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+				<Button Margin="0,10,0,0" x:Name="btnDisable" Width="180" Height="30" Content="Search Accounts" IsEnabled="False"/>
+            </StackPanel>
+            <StackPanel Width="225" Height="200" Orientation="Vertical" VerticalAlignment="Top">
+				<Label Content="Admin Password" FontSize="16" Margin="0,10,0,0" FontWeight="Medium"/>
 				<PasswordBox 	x:Name="passwordBoxCurrent" Width="180"
 								Controls:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(Controls:TextBoxHelper.HasText), Mode=OneWay}"
 								Controls:TextBoxHelper.IsWaitingForData="True"
 								Controls:TextBoxHelper.UseFloatingWatermark="True"
 								Controls:TextBoxHelper.Watermark="Current Password"
 								Style="{StaticResource MetroButtonRevealedPasswordBox}" />				
-				<Label Content="ServiceDesk Ticket" FontSize="16" Margin="0,0,0,0" FontWeight="Medium"/> 
-				<TextBox x:Name="userBoxTicket" Width="180"></TextBox>
-
+				<Button Margin="0,10,0,5" x:Name="btnAdminPswd" Width="180" Height="30" Content="Verify Admin Password" IsEnabled="False" />
             </StackPanel>
             <StackPanel Width="225" Height="200" Orientation="Vertical" VerticalAlignment="Top">
-				<Button Margin="0,40,0,5" x:Name="Btn" Width="180" Height="30" Content="Search Accounts" />
-				<Button Margin="0,25,0,5" x:Name="btnDialog" Width="180" Height="30" Content="Verify Admin Password" />
-				<Button Margin="0,25,0,5" x:Name="btnCurrentPswdTest" Width="180" Height="30" Content="Offboard User"/>						
-			
+				<Label Content="ServiceDesk Ticket" FontSize="16" Margin="0,10,0,0" FontWeight="Medium"/> 
+                <TextBox Controls:TextBoxHelper.ButtonCommand="{Binding TextBoxButtonCmd, Mode=OneWay}"
+                         ContextMenu="{x:Null}"
+                         Width="180"
+                         x:Name="userBoxTicket">
+                    <TextBox.Style>
+                        <Style BasedOn="{StaticResource MetroTextBox}" TargetType="{x:Type TextBox}">
+                            <Setter Property="Controls:TextBoxHelper.ClearTextButton" Value="True" />
+                            <Style.Triggers>
+                                <Trigger Property="Controls:TextBoxHelper.HasText" Value="False">
+                                    <Setter Property="Controls:TextBoxHelper.ClearTextButton" Value="False" />
+                                    <Setter Property="Controls:TextBoxHelper.Watermark" Value="Example INC23123...." />
+                                </Trigger>
+                                <Trigger Property="Controls:TextBoxHelper.HasText" Value="True">
+                                    <Setter Property="Controls:TextBoxHelper.ClearTextButton" Value="True" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+                <Button Margin="0,10,0,0" x:Name="btnOffboard" Width="180" Height="30" Content="Offboard User" IsEnabled="False"/>
             </StackPanel>
             <StackPanel Width="225" Height="200" Orientation="Vertical" VerticalAlignment="Top">
                 <Controls:ToggleSwitch IsChecked="True" Header="Disable User" x:Name="toggleDisable" Background="White" Margin="0,10,0,0"/>

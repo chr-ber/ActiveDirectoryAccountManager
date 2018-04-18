@@ -6,7 +6,7 @@ Function Disable-OffboardingAccounts()
 
     foreach ($userObject in $Global:dbOffboarding)
     {
-        # Skip domain entries that are not selected
+        # Only disable accounts that are checked and the password has been verified
         If ($userObject.isChecked -eq $true -and ($userObject.pswdVer))
         {
             Set-RunSpaceOffboarding -offboardingListView $Global:offboardingListView -dbOffboarding $Global:dbOffboarding -syncHash $syncHash -adminAccount $userObject.samAccount -pswd $userObject.pswdVer -userAccount $userObject.userAccount -dc $userObject.dc -domainName $userObject.domainName -domainBase $userObject.domainBase -officeDomain $userObject.officeDomain -task disable

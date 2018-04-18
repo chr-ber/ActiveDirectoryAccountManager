@@ -272,7 +272,7 @@
                         # If credentials is set
                         if ($credentials)
                         {
-                            $adAccounts = Get-ADUser -Server $dc -Filter {(SamAccountName -like $normalAccount) -Or (SamAccountName -like $adminAccount)} -Properties Enabled, SamAccountName, PasswordExpired, LockedOut , DisplayName, PasswordLastSet, MemberOf -Credential $credentials
+                            $adAccounts = Get-ADUser -Server $dc -Filter {(SamAccountName -like $normalAccount) -Or (SamAccountName -like $adminAccount)} -Properties Enabled, SamAccountName, PasswordExpired, LockedOut , DisplayName, PasswordLastSet, MemberOf -Credential $credentials -ResultPageSize 5
                         }
                         else
                         {
@@ -283,6 +283,13 @@
                     {
                         $exception = $_.Exception.Message
                         # Increase node number on domainController
+
+                        $_.Exception.Message | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
+                        "$domainName\$adminAccount @ $dc" | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
+                        "$domainName\$normalAccount @ $dc" | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
+                        "$credentials" | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
+
+
                         $dc = $dc.Replace("$loopCount", ($loopCount + 1))
                     }
                 }While ($exception -match "Unable to contact the server" -and $loopCount -le $dcCount)
