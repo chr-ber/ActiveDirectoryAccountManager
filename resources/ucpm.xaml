@@ -1,0 +1,265 @@
+<Controls:MetroWindow 
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro" 
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	GlowBrush="{DynamicResource AccentColorBrush}"
+	Title="MainWindow" Height="850" Width="800">		
+	<Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="..\resources\Icons.xaml" />
+                <ResourceDictionary Source="..\resources\custom.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Cobalt.xaml" />
+				<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+	</Window.Resources>
+     <Controls:MetroWindow.RightWindowCommands>
+        <Controls:WindowCommands>
+            <Button x:Name="btnFlyOut">
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Width="20" Height="20" Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}">
+                        <Rectangle.OpacityMask>
+                            <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_settings}"/>
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                </StackPanel>
+            </Button>
+        </Controls:WindowCommands>
+    </Controls:MetroWindow.RightWindowCommands>
+    <Controls:MetroWindow.Flyouts>
+        <Controls:FlyoutsControl>
+            <Controls:Flyout x:Name="flyOut" Header="Settings" Position="Right" Width="200"  Theme="Accent" Grid.RowSpan="4" IsPinned="False" Opacity="0.93" >
+                <Grid>
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal">
+                           <Label Content="Base Skin" Foreground="White" FontSize="16" Margin="15,0,0,0" FontWeight="Medium"/> 
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" FlowDirection="LeftToRight" Width="200" HorizontalAlignment="Left" Margin="15,5,0,0">
+                            <Button x:Name="btnThemeBaseLight" Width="50" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Background="White" Height="50" Margin="0,0,0,0" Style="{DynamicResource MetroCircleButtonStyle}" ></Button>
+                            <Button x:Name="btnThemeBaseDark" Width="50" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Background="#FF252525" Height="50" Margin="0,0,0,0" Style="{DynamicResource MetroCircleButtonStyle}" ></Button>
+                        </StackPanel>
+						<StackPanel Orientation="Horizontal">
+						<Label Content="Accent Color" Foreground="White" FontSize="16" Margin="15,0,0,0" FontWeight="Medium"/>
+						</StackPanel>
+						<StackPanel Orientation="Horizontal" FlowDirection="LeftToRight" Width="200" HorizontalAlignment="Left" Margin="15,5,0,0">
+							<Button x:Name="btnAccentLime" Width="25" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Background="#FFb6d033" Height="25" Margin="0,0,0,0" Style="{DynamicResource MetroCircleButtonStyle}" ></Button>
+							<Button x:Name="btnAccentGreen" Width="25" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Background="Green" Height="25" Margin="0,0,0,0" Style="{DynamicResource MetroCircleButtonStyle}" ></Button>
+							<Button x:Name="btnAccentCyan" Width="25" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Background="Cyan" Height="25" Margin="0,0,0,0" Style="{DynamicResource MetroCircleButtonStyle}" ></Button>
+							<Button x:Name="btnAccentCobalt" Width="25" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Background="#FF3373f2" Height="25" Margin="0,0,0,0" Style="{DynamicResource MetroCircleButtonStyle}" ></Button>
+							<Button x:Name="btnAccentPurple" Width="25" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Background="Purple" Height="25" Margin="0,0,0,0" Style="{DynamicResource MetroCircleButtonStyle}" ></Button>
+							<Button x:Name="btnAccentMauve" Width="25" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Background="#FF635471" Height="25" Margin="0,0,0,0" Style="{DynamicResource MetroCircleButtonStyle}" ></Button>
+						</StackPanel>
+						<StackPanel Orientation="Horizontal" FlowDirection="LeftToRight" Width="200" HorizontalAlignment="Left" Margin="15,5,0,0">
+							<Button x:Name="btnAccentYellow" Width="25" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Background="Yellow" Height="25" Margin="0,0,0,0" Style="{DynamicResource MetroCircleButtonStyle}" ></Button>
+							<Button x:Name="btnAccentOrange" Width="25" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Background="Orange" Height="25" Margin="0,0,0,0" Style="{DynamicResource MetroCircleButtonStyle}" ></Button>	 
+							<Button x:Name="btnAccentRed" Width="25" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Background="Red" Height="25" Margin="0,0,0,0" Style="{DynamicResource MetroCircleButtonStyle}" ></Button>
+							<Button x:Name="btnAccentBrown" Width="25" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Background="#9b7b56" Height="25" Margin="0,0,0,0" Style="{DynamicResource MetroCircleButtonStyle}" ></Button>
+							<Button x:Name="btnAccentSienna" Width="25" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Background="#FF804a31" Height="25" Margin="0,0,0,0" Style="{DynamicResource MetroCircleButtonStyle}" ></Button>
+							<Button x:Name="btnAccentSteel" Width="25" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Background="#FF83919f" Height="25" Margin="0,0,0,0" Style="{DynamicResource MetroCircleButtonStyle}" ></Button>
+						</StackPanel>
+						<StackPanel Orientation="Horizontal" FlowDirection="LeftToRight" Width="400" HorizontalAlignment="Left" Margin="15,10,0,0">
+							<Controls:ToggleSwitch Header="Window stay on top" x:Name="windowStayTop" Foreground="White" Background="White"/>
+						</StackPanel>
+					
+					</StackPanel>
+                </Grid>
+            </Controls:Flyout>
+        </Controls:FlyoutsControl>
+    </Controls:MetroWindow.Flyouts>        	
+    <Grid>
+		<Grid.Resources>
+			<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedTabControl.xaml" />
+		</Grid.Resources>
+        <TabControl x:Name="tabControl"
+					Margin="10,0,10,0"
+					Controls:TabControlHelper.Underlined="TabPanel"
+					TabStripPlacement="{Binding ElementName=AnimatedTabControlTabStripPlacementComboBox, Path=SelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <TabItem Header="Current User" x:Name="tabUser">
+                <ListView x:Name="userListView" Margin="10,205,10,20" >
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="" Width="35">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Visibility="{Binding IsVisible}" IsChecked="{Binding IsChecked}" IsEnabled="{Binding IsEnabled}"></CheckBox>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Domain" DisplayMemberBinding ="{Binding 'domainName'}" Width="100"/>
+                            <GridViewColumn Header="Account" DisplayMemberBinding ="{Binding 'samAccount'}" Width="75"/>
+                            <GridViewColumn Header="Display Name" DisplayMemberBinding ="{Binding 'displayName'}" Width="120"/>
+                            <GridViewColumn Header="Status" DisplayMemberBinding ="{Binding 'accountStatus'}" Width="265"/>
+                            <GridViewColumn x:Name ="verifyBtnDataTemp" Header="Verify Password" Width="165">
+                                <GridViewColumn.CellTemplate >
+									 <DataTemplate>
+										<Button Visibility="{Binding pswdVerifyBtnVisible}"
+												IsEnabled="{Binding IsEnabled}"
+												Content="{Binding pswdVerifyBtnText}"
+												Command ="{Binding pswdVerifyClick}"
+												Margin="5,0,0,0"
+												VerticalAlignment="Center">
+										</Button>
+									</DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Set Password" Width="165">
+                                <GridViewColumn.CellTemplate>
+									 <DataTemplate>
+										<Button Visibility="{Binding pswdVerifyBtnVisible}"
+												IsEnabled="{Binding IsEnabled}"
+												Content="{Binding pswdVerifyBtnText}"
+												Margin="5,0,0,0"
+												VerticalAlignment="Center">
+										</Button>
+									</DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+            <TabItem Header="Admin Mode" x:Name="tabAdmin">
+                <ListView x:Name="adminListView" HorizontalAlignment="Left" Height="350" Margin="7,205,0,0" VerticalAlignment="Top" Width="772">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="" Width="35">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding IsChecked}" IsEnabled="{Binding IsEnabled}" ></CheckBox>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Domain" DisplayMemberBinding ="{Binding 'domainName'}" Width="100"/>
+                            <GridViewColumn Header="Admin Account" DisplayMemberBinding ="{Binding 'samAccountAdmin'}" Width="90"/>
+                            <GridViewColumn Header="Admin Status" DisplayMemberBinding ="{Binding 'statusAdmin'}" Width="100"/>
+                            <GridViewColumn Header="Password Admin" Width="120">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Image x:Name="image" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="20" Source="{Binding pswdVerAdmin}"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="User Account" DisplayMemberBinding ="{Binding 'samAccountUser'}" Width="90"/>
+                            <GridViewColumn Header="User Status" DisplayMemberBinding ="{Binding 'statusUser'}" Width="100"/>
+                            <GridViewColumn Header="Set Password User" Width="120">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Image x:Name="image" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="20" Source="{Binding pswdSetUser}"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+				<TabItem Header="Offboarding" x:Name="tabOffboarding">
+    <StackPanel Orientation="Vertical">
+        <StackPanel Orientation="Horizontal" Height="200" VerticalAlignment="Top">
+            <StackPanel Width="225" Height="200" Orientation="Vertical" VerticalAlignment="Top">
+				<Label Content="User SamAccount" FontSize="16" Margin="0,10,0,0" FontWeight="Medium"/>
+				<TextBox x:Name="userBoxDisable" Width="180"></TextBox>		
+				<Label Content="Admin Password" FontSize="16" Margin="0,0,0,0" FontWeight="Medium"/>
+				<PasswordBox 	x:Name="passwordBoxCurrent" Width="180"
+								Controls:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(Controls:TextBoxHelper.HasText), Mode=OneWay}"
+								Controls:TextBoxHelper.IsWaitingForData="True"
+								Controls:TextBoxHelper.UseFloatingWatermark="True"
+								Controls:TextBoxHelper.Watermark="Current Password"
+								Style="{StaticResource MetroButtonRevealedPasswordBox}" />				
+				<Label Content="ServiceDesk Ticket" FontSize="16" Margin="0,0,0,0" FontWeight="Medium"/> 
+				<TextBox x:Name="userBoxTicket" Width="180"></TextBox>
+
+            </StackPanel>
+            <StackPanel Width="225" Height="200" Orientation="Vertical" VerticalAlignment="Top">
+				<Button Margin="0,40,0,5" x:Name="Btn" Width="180" Height="30" Content="Search Accounts" />
+				<Button Margin="0,25,0,5" x:Name="btnDialog" Width="180" Height="30" Content="Verify Admin Password" />
+				<Button Margin="0,25,0,5" x:Name="btnCurrentPswdTest" Width="180" Height="30" Content="Offboard User"/>						
+			
+            </StackPanel>
+            <StackPanel Width="225" Height="200" Orientation="Vertical" VerticalAlignment="Top">
+                <Controls:ToggleSwitch IsChecked="True" Header="Disable User" x:Name="toggleDisable" Background="White" Margin="0,10,0,0"/>
+                <Controls:ToggleSwitch IsChecked="True" Header="Remove Groups" x:Name="toggleRemoveGrps" Background="White"/>
+                <Controls:ToggleSwitch IsChecked="True" Header="Move to Disabled Users" x:Name="toggleMoveDis" Background="White"/>
+            </StackPanel>
+        </StackPanel>
+        <StackPanel>
+                        <ListView x:Name="offboardingListView" Margin="10,10,10,20" >
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="" Width="35">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <CheckBox Visibility="{Binding IsVisible}" IsChecked="{Binding IsChecked}" IsEnabled="{Binding IsEnabled}"></CheckBox>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Domain" DisplayMemberBinding ="{Binding 'domainName'}" Width="100"/>
+                                    <GridViewColumn Header="Admin Account" DisplayMemberBinding ="{Binding 'samAccount'}" Width="115"/>
+                                    <GridViewColumn Header="Admin Status" DisplayMemberBinding ="{Binding 'accountStatus'}" Width="125"/>
+                                    <GridViewColumn x:Name ="adminPswdGrid" Header="Admin Password" Width="135">
+                                        <GridViewColumn.CellTemplate >
+                                            <DataTemplate>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="User Account" DisplayMemberBinding ="{Binding 'userAccount'}" Width="115"/>
+                                    <GridViewColumn Header="User Status" DisplayMemberBinding ="{Binding 'userStatus'}" Width="125"/>
+                                    <GridViewColumn Header="User DisplayName " DisplayMemberBinding ="{Binding 'userDisplayName'}" Width="130"/>
+									<GridViewColumn Header="User OU " DisplayMemberBinding ="{Binding 'userOu'}" Width="115"/>
+                                    <GridViewColumn Header="User MemberOf " DisplayMemberBinding ="{Binding 'userMemberOf'}" Width="115"/>
+								</GridView>
+                            </ListView.View>
+                        </ListView>
+                    </StackPanel>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+        <ProgressBar Value="0" 
+                    x:Name="statusBarProgress"
+                    BorderBrush="Black"
+                    BorderThickness="2"
+                    VerticalAlignment="Bottom"
+                    Height="13"
+                    Margin="220,0,5,5"
+                    />
+		<StackPanel VerticalAlignment="Top" HorizontalAlignment="Left">
+			<!--<Label Content="Current Password" FontSize="16" Margin="10,50,0,0" FontWeight="Medium"/> 
+			<PasswordBox 	x:Name="passwordBoxCurrent" HorizontalAlignment="Left" VerticalAlignment="Top"
+							Controls:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(Controls:TextBoxHelper.HasText), Mode=OneWay}"
+							Controls:TextBoxHelper.IsWaitingForData="True"
+							Controls:TextBoxHelper.UseFloatingWatermark="True"
+							Controls:TextBoxHelper.Watermark="Current Password"
+							Style="{StaticResource MetroButtonRevealedPasswordBox}" />
+			<Button x:Name="Btn" Width="40" Height="40" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.ColumnSpan="2" Style="{DynamicResource SquareButtonStyle}"/>
+			<Button x:Name="btnDialog" Width="40" Height="40" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.ColumnSpan="2" Style="{DynamicResource SquareButtonStyle}"/>
+			<Button x:Name="btnCurrentPswdTest" Width="40" Height="40" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.ColumnSpan="2" Style="{DynamicResource SquareButtonStyle}"/>						
+		-->
+		</StackPanel>
+		<DockPanel LastChildFill="False" Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
+            <StatusBar DockPanel.Dock="Bottom">
+                <StatusBar.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="170" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                        </Grid>
+                    </ItemsPanelTemplate>
+                </StatusBar.ItemsPanel>
+                <StatusBarItem Name="statusBarStatus">
+                    <TextBlock Name="status" Text="Status:" />
+                </StatusBarItem>
+                <StatusBarItem Grid.Column="1">
+                    <TextBlock x:Name="statusBarText" />
+                </StatusBarItem>
+                <Separator Grid.Column="2" />
+            </StatusBar>
+        </DockPanel>
+    </Grid>
+</Controls:MetroWindow>
