@@ -18,7 +18,7 @@
     foreach ($userObject in $dbCurrent)
     {
         # Skipps loop if the account is in a bad state, pswd has already been set or the account is not checked
-        if ($userObject.accountStatus -ne "Healthy" -and $userObject.accountStatus -ne "Verification required" -and $userObject.IsChecked -eq $false -and ($userObject.pswdVer))
+        if ((!($userObject.accountStatus -eq "Healthy" -or $userObject.accountStatus -eq "Verification required")) -or $userObject.IsChecked -eq $false -or ($userObject.pswdVer))
         {
             continue
         }

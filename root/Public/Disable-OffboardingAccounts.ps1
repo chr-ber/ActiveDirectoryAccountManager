@@ -3,6 +3,7 @@ Function Disable-OffboardingAccounts()
     $syncHash.statusBarText.Text = "Diabling offboarding accounts."
     $syncHash.statusBarProgress.IsIndeterminate = $true
     $syncHash.statusBarProgress.Value = 50
+    $syncHash.editDB = $false
 
     foreach ($userObject in $Global:dbOffboarding)
     {

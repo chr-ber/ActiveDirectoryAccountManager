@@ -64,10 +64,10 @@
     )
 
     $syncHash.Host = $host
-    $syncHash.editDB = $false    
+    #$syncHash.editDB = $false    
     $Runspace = [runspacefactory]::CreateRunspace()
     $Runspace.ApartmentState = "STA"
-    $Runspace.ThreadOptions = "ReuseThread"
+    $Runspace.ThreadOptions = "UseNewThread"
     $Runspace.Open()
 
     $syncHash.activeRunspaces++
@@ -177,7 +177,7 @@
                 {
                     $dbLink.userAccount = $user.SamAccountName
                     $dbLink.userDisplayName = $user.displayName
-                    $dbLink.userOu = [regex]::Match($user.DistinguishedName, "OU=([- _\d\w]*),").Groups[1].Value
+                    $dbLink.userOu = [regex]::Match($user.DistinguishedName, "CN=.*[OC][UN]=([- _\d\w]*),").Groups[1].Value
                     $dbLink.userMemberOf = $user.MemberOf.Count
                     $dbLink.adObject = $user
                     $dbLink.userDistName = $user.DistinguishedName
@@ -318,11 +318,11 @@
                         # If credentials is set
                         if ($credentials)
                         {
-                            $adAccounts = Get-ADUser -Server $dc -Filter {(SamAccountName -like $normalAccount) -Or (SamAccountName -like $adminAccount)} -Properties Enabled, SamAccountName, PasswordExpired, LockedOut , DisplayName, PasswordLastSet, MemberOf -Credential $credentials -ResultPageSize 5
+                            $adAccounts = Get-ADUser -Server $dc -Filter {(SamAccountName -eq $normalAccount) -Or (SamAccountName -eq $adminAccount)} -Properties Enabled, SamAccountName, PasswordExpired, LockedOut , DisplayName, PasswordLastSet, MemberOf -Credential $credentials -ResultPageSize 5
                         }
                         else
                         {
-                            $adAccounts = Get-ADUser -Server $dc -Filter {(SamAccountName -like $normalAccount) -Or (SamAccountName -like $adminAccount)} -Properties Enabled, SamAccountName, PasswordExpired, LockedOut , DisplayName, PasswordLastSet, MemberOf                        
+                            $adAccounts = Get-ADUser -Server $dc -Filter {(SamAccountName -eq $normalAccount) -Or (SamAccountName -eq $adminAccount)} -ResultPageSize 5 -Properties Enabled, SamAccountName, PasswordExpired, LockedOut , DisplayName, PasswordLastSet, MemberOf 
                         }
                     }
                     catch
@@ -330,16 +330,23 @@
                         $exception = $_.Exception.Message
                         # Increase node number on domainController
 
-                        #Get-Date -format yy-MM-dd-hh:mm:ss | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
-                        #"`t" + $_.Exception.Message | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
-                        #"`t$domainName\$adminAccount @ $dc" | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
-                        #"`t$domainName\$normalAccount @ $dc" | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
-                        #"`t$credentials" | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
+                        Get-Date -format yy-MM-dd-hh:mm:ss | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
+                        "`t" + $_.Exception.Message | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
+                        "`t$domainName\$adminAccount @ $dc" | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
 
-
-                        $dc = $dc.Replace("$loopCount", ($loopCount + 1))
+                        # If unable to connect dc try next one
+                        If ($exception -match "Unable to contact the server")
+                        {
+                            $dc = $dc.Replace("$loopCount", ($loopCount + 1))
+                        }
+                        else 
+                        {
+                            Start-Sleep -Milliseconds 333
+                        }
+                        
+                        
                     }
-                }While ($exception -match "Unable to contact the server" -and $loopCount -le $dcCount)
+                }While (($exception -match "Unable to contact the server" -and $loopCount -le $dcCount) -or $exception -match "invalid enumeration context")
             }
 
             # Error handling
@@ -358,7 +365,7 @@
                         } 
                     }
 
-                    $accountStatus = "Verifictaion required"     
+                    $accountStatus = "Verification required"     
                 }
                 # If we tried to contact all domain controllers without success
                 elseif ($exception -match "Unable to contact the server" -and $dcCount -eq $loopCount)
@@ -415,7 +422,7 @@
                 }
 
                 # Set flag if user account is in an ok state
-                If ($accountStatus -eq "Healthy" -or $accountStatus -eq "Verifictaion required")
+                If ($accountStatus -eq "Healthy" -or $accountStatus -eq "Verification required")
                 {
                     $adAccount | Add-Member -NotePropertyName healthy -NotePropertyValue $true -Force            
                 }
@@ -438,7 +445,7 @@
             return $adAccounts
         }
 
-        Function Disable-DomainAccounts
+        Function Disable-DomainAccount
         {
             [CmdletBinding()]
             Param(
@@ -464,7 +471,7 @@
             )
 
             # Get user object
-            #$adUser = Get-ADUser -Identity $userDistName -Server $dc -Credential $credentials
+            $user = Get-ADUser -Identity $userDistName -Server $dc -Credential $credentials -Properties Enabled
 
             #Create Searchbase from domainController FQDN
             $searchbase = "DC=" + [regex]::match($dc, "\.(\w*)\.").Groups[1].Value + ",DC=" + [regex]::match($dc, "\.(\w*)$").Groups[1].Value
@@ -478,76 +485,64 @@
                 $disabledFolder = Get-ADOrganizationalUnit -Identity "OU=Disabled Users,$searchbase" -Credential $credentials -Server $dc
             }
 
-            #Check if account is already disabled
-            <#             $userEnabled = Get-ADUser -Identity $userAccount -server $dc -Credential $credentials -Properties Enabled  | Select-Object -expand Enabled
-            If (!$userEnabled)
-            {
-                #. TextHandler "Red" "$userAccount is already disabled in" $domainPart
-            }
-            else 
-            {
-                try
-                {               
-                    #disable the user
-                    Disable-ADAccount -identity $userAccount -server $dc -credential $credentials
-                    #. TextHandler "green" "$displayName ($userAccount) was successfully disabled by $domainAdmin in" $domainPart
-
-                }
-                catch
-                {
-                    Get-Date -format yy-MM-dd-hh:mm:ss | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
-                    "`t Error during Disable Account:" + $_.Exception.Message | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
-                }
-            } #>
-
             try
             {
-                While (Get-ADUser -Identity $userDistName -server $dc -Credential $credentials -Properties Enabled  | Select-Object -expand Enabled)
-                {
-                    $temp = Disable-ADAccount -identity $userDistName -server $dc -Credential $credentials
-                    Start-Sleep -Milliseconds 250
-                }
-                #$userObject.offboardingText += "Disabled $userAccount"
+                do
+                {      
+
+
+                    try
+                    {
+                        $userStateEnabled = $user.Enabled
+                        $temp = Set-ADUser -Identity $userDistName -Server $dc -Credential $credentials -Enabled $false
+                        Start-Sleep -Milliseconds 250
+                    }
+                    catch
+                    {
+                        Get-Date -format yy-MM-dd-hh:mm:ss | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
+                        "`t Error during Disable Account:" + $_.Exception.Message | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
+                        "`t $userDistName" + $_.Exception.Message | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
+
+                        # Set variable to force retry
+                        $userStateEnabled = $true
+                    }
+                }While (($userStateEnabled -eq $true))
             }
             catch
             {
                 Get-Date -format yy-MM-dd-hh:mm:ss | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
-                "`t Error during Disable Account:" + $_.Exception.Message | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
+                "`t Error Get-ADUser enbaled state:" + $_.Exception.Message | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
                 "`t $userDistName" + $_.Exception.Message | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
-                
             }
 
             # Get an array of all the groups the user is memberof except "Domain Users" and "Domänen-Benutzer"
             #. TextHandler "green" "Removed $displayName ($userAccount) from the following groups in $domainPart`:"
-            [array]$userGroupMembership = @()
-            $userGroupMembership = Get-ADPrincipalGroupMembership $userDistName -server $dc -Credential $credentials | Select-Object SamAccountName | Where-Object { $_.SamAccountName -ne "Domain Users" -and $_.SamAccountName -ne "Domänen-Benutzer" }
+
 
             # If groups have been found remove the user from them
-            If ($userGroupMembership.Count -ne 0)
+            do
             {
+                [array]$userGroupMembership = @()
+                $userGroupMembership = Get-ADPrincipalGroupMembership $userDistName -server $dc -Credential $credentials
+                $userGroupMembership = $userGroupMembership | Where-Object { $_.SamAccountName -ne "Domain Users" -and $_.SamAccountName -ne "Domänen-Benutzer" }
                 #$userObject.offboardingText += "Removing the user from following groups:"
                 ForEach ($userGroup in $userGroupMembership)
                 { 
                     try
                     {
-                        $temp = Remove-ADGroupMember -Identity $userGroup.SamAccountName -Member $userDistName -server $dc -credential $credentials -Confirm:$false 
-                        #$userObject.offboardingText += "`t$domainMemberGroup"
-                
+                        $temp = Remove-ADGroupMember -Identity $userGroup.DistinguishedName -Member $userDistName -server $dc -credential $credentials -Confirm:$false 
+                        Start-Sleep -Milliseconds 500
                     }
                     catch
                     {
                         Get-Date -format yy-MM-dd-hh:mm:ss | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
                         "`t Error during Remove Group:" + $_.Exception.Message | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
-            
+                        "`t $userDistName" + $_.Exception.Message | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append                        
                     }
     
                 }
-            } 
-            Else
-            {
-                #$userObject.offboardingText += "User not part of any groups."
-            }
-            
+            }While ($userGroupMembership.Count -ne 0)
+                        
             try
             {
                 # Move user to disabled users organizational unit
@@ -596,7 +591,7 @@
             }
             "disable"
             {
-                Disable-DomainAccounts -adminAccount $adminAccount -credentials $credentials -userAccount $userAccount -dc $dc -userDistName $userDistName
+                Disable-DomainAccount -adminAccount $adminAccount -credentials $credentials -userAccount $userAccount -dc $dc -userDistName $userDistName
 
                 #$adminAd = Get-DomainAccounts -samAccountName $adminAccount -dc $dc -domainName $domainName -returnAdmin $true -officeDomain $officeDomain -credentials $credentials #-whatIf $true
                 #$adminAd = $null

@@ -34,7 +34,7 @@
         
 
         # If domain needed credentials to scan for user, use runspaceping to update the entries
-        if ($userObject.accountStatus -match "Verifictaion required")
+        if ($userObject.accountStatus -match "Verification required")
         {
             Switch ($Global:tabControl.SelectedItem.Name)
             {

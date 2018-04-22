@@ -6,6 +6,7 @@
 
     # Take user name from text box and disable it
     $user = $syncHash.userBoxDisable.Text
+    $syncHash.editDB = $false
     $syncHash.userBoxDisable.IsEnabled = $false
 
     foreach ($domain in $Global:dbOffboarding)
