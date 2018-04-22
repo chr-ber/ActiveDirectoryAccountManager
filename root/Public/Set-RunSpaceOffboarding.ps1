@@ -57,11 +57,25 @@
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         $userDistName,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        $offboardingResults,
         
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [bool]$whatIf = $false    
     )
+
+    # If password is set and credentials is null build credentials
+    If ($pswd)
+    {
+        if ($pswd.GetType().Name -eq "SecureString" -and (!($credentials)))
+        {
+            $credentials = new-object -typename System.Management.Automation.PSCredential($adminAccount, $pswd)
+        }      
+    }
+
 
     $syncHash.Host = $host
     #$syncHash.editDB = $false    
@@ -85,10 +99,16 @@
     $Runspace.SessionStateProxy.SetVariable("pswd", $pswd)
     $Runspace.SessionStateProxy.SetVariable("credentials", $credentials)
     $Runspace.SessionStateProxy.SetVariable("userDistName", $userDistName)
+
+    $Runspace.SessionStateProxy.SetVariable("offboardingResults", $offboardingResults)
+    
+    $Runspace.SessionStateProxy.SetVariable("disableAccount", $syncHash.offboToggleDisable.IsChecked)
+    $Runspace.SessionStateProxy.SetVariable("moveToDisabled", $syncHash.offboToggleMoveDis.IsChecked)
+    $Runspace.SessionStateProxy.SetVariable("removeGroups", $syncHash.offboToggleRemoveGrps.IsChecked)
     
 
     $code = {
-
+        
         Function Set-OffboardingDatabase ($adminAd, $userAd, $syncHash, $dbOffboarding, $domainBase)
         {
             <#             [CmdletBinding()]
@@ -330,9 +350,9 @@
                         $exception = $_.Exception.Message
                         # Increase node number on domainController
 
-                        Get-Date -format yy-MM-dd-hh:mm:ss | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
-                        "`t" + $_.Exception.Message | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
-                        "`t$domainName\$adminAccount @ $dc" | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
+                        Get-Date -format yy-MM-dd-hh:mm:ss | Out-File -FilePath "C:\coding\ActiveDirectoryAccountManager\logs\runspaceError.txt" -Append
+                        "`t" + $_.Exception.Message | Out-File -FilePath "C:\coding\ActiveDirectoryAccountManager\logs\runspaceError.txt" -Append
+                        "`t$domainName\$adminAccount @ $dc" | Out-File -FilePath "C:\coding\ActiveDirectoryAccountManager\logs\runspaceError.txt" -Append
 
                         # If unable to connect dc try next one
                         If ($exception -match "Unable to contact the server")
@@ -467,13 +487,32 @@
 
                 [Parameter(Mandatory = $true)]
                 [ValidateNotNullOrEmpty()]
+                $offboardingResults,
+
+                [Parameter(Mandatory = $true)]
+                [ValidateNotNullOrEmpty()]
+                $disableAccount,
+
+                [Parameter(Mandatory = $true)]
+                [ValidateNotNullOrEmpty()]
+                $moveToDisabled,
+
+                [Parameter(Mandatory = $true)]
+                [ValidateNotNullOrEmpty()]
+                $removeGroups,
+
+                [Parameter(Mandatory = $true)]
+                [ValidateNotNullOrEmpty()]
                 [Pscredential]$credentials
             )
 
-            # Get user object
-            $user = Get-ADUser -Identity $userDistName -Server $dc -Credential $credentials -Properties Enabled
+            ####### REMOVE
+            Get-Date -format yy-MM-dd-hh:mm:ss | Out-File -FilePath "C:\coding\ActiveDirectoryAccountManager\logs\runspaceError.txt" -Append
+            $syncHash.offboToggleDisable.IsChecked | Out-File -FilePath "C:\coding\ActiveDirectoryAccountManager\logs\runspaceError.txt" -Append
+            $toggleDisable | Out-File -FilePath "C:\coding\ActiveDirectoryAccountManager\logs\runspaceError.txt" -Append
+            ############# ME 
 
-            #Create Searchbase from domainController FQDN
+            #Create searchbase from domainController FQDN
             $searchbase = "DC=" + [regex]::match($dc, "\.(\w*)\.").Groups[1].Value + ",DC=" + [regex]::match($dc, "\.(\w*)$").Groups[1].Value
 
             #check if "Disabled Users" OU exists in the domain, if not create it
@@ -485,92 +524,76 @@
                 $disabledFolder = Get-ADOrganizationalUnit -Identity "OU=Disabled Users,$searchbase" -Credential $credentials -Server $dc
             }
 
-            try
-            {
-                do
-                {      
-
-
-                    try
-                    {
-                        $userStateEnabled = $user.Enabled
-                        $temp = Set-ADUser -Identity $userDistName -Server $dc -Credential $credentials -Enabled $false
-                        Start-Sleep -Milliseconds 250
-                    }
-                    catch
-                    {
-                        Get-Date -format yy-MM-dd-hh:mm:ss | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
-                        "`t Error during Disable Account:" + $_.Exception.Message | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
-                        "`t $userDistName" + $_.Exception.Message | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
-
-                        # Set variable to force retry
-                        $userStateEnabled = $true
-                    }
-                }While (($userStateEnabled -eq $true))
-            }
-            catch
-            {
-                Get-Date -format yy-MM-dd-hh:mm:ss | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
-                "`t Error Get-ADUser enbaled state:" + $_.Exception.Message | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
-                "`t $userDistName" + $_.Exception.Message | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
+            # Disable account if setting enabled
+            If ($disableAccount -eq $true)
+            { 
+                try
+                {
+                    # Get user object
+                    $temp = Set-ADUser -Identity $userDistName -Server $dc -Credential $credentials -Enabled $false
+                    $offboardingResults.disabled = $true
+                }
+                catch
+                {
+                    Get-Date -format yy-MM-dd-hh:mm:ss | Out-File -FilePath "C:\coding\ActiveDirectoryAccountManager\logs\runspaceError.txt" -Append
+                    "`t Error during Disable Account:" + $_.Exception.Message | Out-File -FilePath "C:\coding\ActiveDirectoryAccountManager\logs\runspaceError.txt" -Append
+                    "`t $userDistName" | Out-File -FilePath "C:\coding\ActiveDirectoryAccountManager\logs\runspaceError.txt" -Append
+                }
             }
 
-            # Get an array of all the groups the user is memberof except "Domain Users" and "Domänen-Benutzer"
-            #. TextHandler "green" "Removed $displayName ($userAccount) from the following groups in $domainPart`:"
-
-
-            # If groups have been found remove the user from them
-            do
-            {
+            # Remove groups if setting is active
+            If ($removeGroups -eq $true)
+            { 
                 [array]$userGroupMembership = @()
                 $userGroupMembership = Get-ADPrincipalGroupMembership $userDistName -server $dc -Credential $credentials
                 $userGroupMembership = $userGroupMembership | Where-Object { $_.SamAccountName -ne "Domain Users" -and $_.SamAccountName -ne "Domänen-Benutzer" }
-                #$userObject.offboardingText += "Removing the user from following groups:"
                 ForEach ($userGroup in $userGroupMembership)
                 { 
                     try
                     {
-                        $temp = Remove-ADGroupMember -Identity $userGroup.DistinguishedName -Member $userDistName -server $dc -credential $credentials -Confirm:$false 
-                        Start-Sleep -Milliseconds 500
+                        $temp = Remove-ADGroupMember -Identity $userGroup.DistinguishedName -Member $userDistName -server $dc -credential $credentials -Confirm:$false
+                        $offboardingResults.grpsRemoved += $userGroup.SamAccountName
+                        
                     }
                     catch
                     {
-                        Get-Date -format yy-MM-dd-hh:mm:ss | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
-                        "`t Error during Remove Group:" + $_.Exception.Message | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
-                        "`t $userDistName" + $_.Exception.Message | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append                        
+                        Get-Date -format yy-MM-dd-hh:mm:ss | Out-File -FilePath "C:\coding\ActiveDirectoryAccountManager\logs\runspaceError.txt" -Append
+                        "`t Error during Remove Group:" + $_.Exception.Message | Out-File -FilePath "C:\coding\ActiveDirectoryAccountManager\logs\runspaceError.txt" -Append
+                        "`t $userDistName" + $_.Exception.Message | Out-File -FilePath "C:\coding\ActiveDirectoryAccountManager\logs\runspaceError.txt" -Append
                     }
-    
                 }
-            }While ($userGroupMembership.Count -ne 0)
-                        
-            try
-            {
-                # Move user to disabled users organizational unit
-            
-                If ($userDistName -notmatch $disabledFolder)
-                {
-                    $temp = Move-ADObject -Identity $userDistName -server $dc -TargetPath $disabledFolder -credential $credentials 
-                    #. TextHandler "green" "Moved $displayName ($userAccount) to $disabledTargetPath in" $domainPart                        
-                }
-                else
-                {
-                    # User already in the diabled users folder
-                }
-            }
-            catch
-            {
-                Get-Date -format yy-MM-dd-hh:mm:ss | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
-                "`t Error during Move Account:" + $_.Exception.Message | Out-File -FilePath "C:\temp\runspaceErros\error.txt" -Append
-        
             }
 
+            # Move to disabled folder if setting is active
+            If ($moveToDisabled -eq $true)
+            { 
+                try
+                {
+                    # Check if user is already in disabled folder
+                    If ($userDistName -notmatch $disabledFolder)
+                    {
+                        $temp = Move-ADObject -Identity $userDistName -server $dc -TargetPath $disabledFolder -credential $credentials 
+                    }
+                }
+                catch
+                {
+                    Get-Date -format yy-MM-dd-hh:mm:ss | Out-File -FilePath "C:\coding\ActiveDirectoryAccountManager\logs\runspaceError.txt" -Append
+                    "`t Error during Move Account:" + $_.Exception.Message | Out-File -FilePath "C:\coding\ActiveDirectoryAccountManager\logs\runspaceError.txt" -Append
+                }
+            }
         }
 
-        # If password is set and credentials is null build credentials
-        if ($pswd.GetType().Name -eq "SecureString" -and (!($credentials)))
+        # Only one runspace can make calls to a domain, otherwise we recieve the following erros:
+        # The server has returned the following error: invalid enumeration context.
+
+        # Check if there is another runspace making calls to the same domain
+        While ($syncHash.activeRunSpaceDomains -eq $domainName)
         {
-            $credentials = new-object -typename System.Management.Automation.PSCredential($adminAccount, $pswd)
-        } 
+            # Wait until other runspace finished
+            Start-Sleep -Seconds 1
+        }
+        # Add the domain name to the active runspace list
+        $syncHash.activeRunSpaceDomains.Add($domainName)
 
         Switch ($task)
         {
@@ -591,19 +614,16 @@
             }
             "disable"
             {
-                Disable-DomainAccount -adminAccount $adminAccount -credentials $credentials -userAccount $userAccount -dc $dc -userDistName $userDistName
+                Disable-DomainAccount -adminAccount $adminAccount -credentials $credentials -userAccount $userAccount -dc $dc -userDistName $userDistName -moveToDisabled $moveToDisabled -disableAccount $disableAccount -removeGroups $removeGroups -offboardingResults $offboardingResults
 
-                #$adminAd = Get-DomainAccounts -samAccountName $adminAccount -dc $dc -domainName $domainName -returnAdmin $true -officeDomain $officeDomain -credentials $credentials #-whatIf $true
-                #$adminAd = $null
                 $userAd = Get-DomainAccounts -samAccountName $userAccount -dc $dc -domainName $domainName -officeDomain $officeDomain -credentials $credentials -checkSingleAccount $true #-whatIf $true
 
                 Set-OffboardingDatabase $null $userAd $syncHash $dbOffboarding $domainBase
-        
-                $userObject.offboardingText += "OMGGSH"                
             }
         }
 
         $syncHash.activeRunspaces--
+        $syncHash.activeRunSpaceDomains.Remove($domainName)
 
         # Refresh the gui if the last Runspace has finished
         If ($syncHash.activeRunspaces -eq 0)

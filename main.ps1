@@ -48,7 +48,7 @@ $Global:dbOffboarding = @()
 # SyncHash needed to manipulate data out of runspaces
 $Global:syncHash = [hashtable]::Synchronized(@{})
 $Global:syncHash.activeRunspaces = 0
-
+[System.Collections.ArrayList]$Global:syncHash.activeRunSpaceDomains = @()
 # Load xaml and 
 $XamlMainWindow = Set-XML("$Global:scriptLocation\resources\main.xaml")
 $Reader = (New-Object System.Xml.XmlNodeReader $XamlMainWindow)
@@ -109,8 +109,9 @@ $userBoxTicket = $syncHash.Window.FindName("userBoxTicket")
 $userBoxTicket.Add_TextChanged( { Set-BtnEnabledByTicketNumber -text $userBoxTicket.Text -button $btnOffboard})
 $btnOffboard = $syncHash.Window.FindName("btnOffboard")
 
-
-
+$syncHash.offboToggleDisable = $syncHash.Window.FindName("toggleDisable")
+$syncHash.offboToggleRemoveGrps = $syncHash.Window.FindName("toggleRemoveGrps")
+$syncHash.offboToggleMoveDis = $syncHash.Window.FindName("toggleMoveDis")
 #$btnCurrentPswdTest = $syncHash.Window.FindName("btnCurrentPswdTest")
 #$btnCurrentPswdTest.IsEnabled = $false
 
@@ -187,7 +188,7 @@ $bindPwdEnabled = New-Object System.Windows.Data.Binding
 $bindPwdEnabled.path = "pswdVerifyBtnEnabled"
 # Create button factory
 $buttonFactory = New-Object System.Windows.FrameworkElementFactory([System.Windows.Controls.Button])
-$buttonFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, $clickEvent)
+$buttonFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, [System.Windows.RoutedEventHandler]$clickEvent)
 # Add bindings
 $buttonFactory.SetBinding([System.Windows.Controls.Button]::ContentProperty, $bindPwdCurText)
 $buttonFactory.SetBinding([System.Windows.Controls.Button]::VisibilityProperty, $bindPwdVisibility)
@@ -206,7 +207,7 @@ $bindPwdVisibility.path = "pswdVerifyBtnVisible"
 $bindPwdEnabled.path = "pswdVerifyBtnEnabled"
 # Create button factory
 $buttonFactory = New-Object System.Windows.FrameworkElementFactory([System.Windows.Controls.Button])
-$buttonFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, $clickEvent)
+$buttonFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, [System.Windows.RoutedEventHandler]$clickEvent)
 # Add bindings
 $buttonFactory.SetBinding([System.Windows.Controls.Button]::ContentProperty, $bindPwdCurText)
 $buttonFactory.SetBinding([System.Windows.Controls.Button]::VisibilityProperty, $bindPwdVisibility)

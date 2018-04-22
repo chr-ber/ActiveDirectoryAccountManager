@@ -39,6 +39,9 @@
     # Build offboarding object
     foreach ($domain in $rootConfig)
     {
+
+        $offboardingResults = @([PSCustomObject]@{disabled = ""; moved = ""; grpsRemoved = ""})
+
         # For each domain we create an prepared object selectable in the gui and and invisible stock item
         # This is needed since powershell can not modify pscustomobjects asynchronously in PoSh V3 and
         # Is unable to add additional objects from a runspace 
@@ -46,7 +49,7 @@
         {
             if ($i -eq 1)
             {
-                $Global:dbOffboarding += @([pscustomobject]@{IsEnabled = "true"; IsChecked = "true"; domainName = $domain.domainName; samAccount = ""; accountStatus = ""; pswdVer = ""; pswdVerifyBtnText = "Set password"; pswdVerifyBtnVisible = "Hidden"; pswdVerifyBtnEnabled = $true; dc = $domain.dc; domainBase = $domain.domainBase; officeDomain = $domain.officeDomain; adObject = ""; userAccount = ""; userStatus = ""; userDisplayName = ""; userOu = ""; userMemberOf = ""; userDistName = ""; offboardingText = ""; })
+                $Global:dbOffboarding += @([pscustomobject]@{IsEnabled = "true"; IsChecked = "true"; domainName = $domain.domainName; samAccount = ""; accountStatus = ""; pswdVer = ""; pswdVerifyBtnText = "Set password"; pswdVerifyBtnVisible = "Hidden"; pswdVerifyBtnEnabled = $true; dc = $domain.dc; domainBase = $domain.domainBase; officeDomain = $domain.officeDomain; adObject = ""; userAccount = ""; userStatus = ""; userDisplayName = ""; userOu = ""; userMemberOf = ""; userDistName = ""; offboardingResults = $offboardingResults; })
 
             }
             else
