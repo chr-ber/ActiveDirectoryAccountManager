@@ -54,8 +54,8 @@ $XamlMainWindow = Set-XML("$Global:scriptLocation\resources\main.xaml")
 $Reader = (New-Object System.Xml.XmlNodeReader $XamlMainWindow)
 $Global:syncHash.Window = [Windows.Markup.XamlReader]::Load($Reader)
 
-$Global:syncHash.Window.Title = "Ultimate Complaiant Password Manager"
- 
+$Global:syncHash.Window.Title = "ADAM - Active Directory Account Manager"
+
 # Grid for displaying results
 $Global:userListView = $syncHash.Window.FindName("userListView")
 $Global:adminListView = $syncHash.Window.FindName("adminListView")

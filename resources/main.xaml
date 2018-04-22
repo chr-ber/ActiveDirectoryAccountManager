@@ -78,8 +78,42 @@
 					Margin="10,0,10,0"
 					Controls:TabControlHelper.Underlined="TabPanel"
 					TabStripPlacement="{Binding ElementName=AnimatedTabControlTabStripPlacementComboBox, Path=SelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-            <TabItem Header="Current User" x:Name="tabUser">
-                <ListView x:Name="userListView" Margin="10,205,10,20" >
+            <TabItem Header="Change Passwords" x:Name="tabUser">
+                    <StackPanel Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal" Height="160" VerticalAlignment="Top">
+                <StackPanel Width="225" Height="200" Orientation="Vertical" VerticalAlignment="Top">
+				<Label Content="Search Domain Accounts" FontSize="16" Margin="0,10,0,0" FontWeight="Medium"/>
+				<Button Margin="0,0,0,0"  Width="180" Height="30" Content="Search Accounts" IsEnabled="False"/>
+            </StackPanel>
+            <StackPanel Width="225" Height="200" Orientation="Vertical" VerticalAlignment="Top">
+				<Label Content="Current Password" FontSize="16" Margin="0,10,0,0" FontWeight="Medium"/>
+				<PasswordBox 	 Width="180" 
+								Controls:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(Controls:TextBoxHelper.HasText), Mode=OneWay}"
+								Controls:TextBoxHelper.IsWaitingForData="True"
+								Controls:TextBoxHelper.UseFloatingWatermark="True"
+								Controls:TextBoxHelper.Watermark="Enter domain admin pas..."
+								Style="{StaticResource MetroButtonRevealedPasswordBox}" />				
+				<Button Margin="0,10,0,5"  Width="180" Height="30" Content="Verify Password" IsEnabled="False" />
+            </StackPanel>
+                        <StackPanel Width="225" Height="200" Orientation="Vertical" VerticalAlignment="Top">
+				<Label Content="New Password" FontSize="16" Margin="0,10,0,0" FontWeight="Medium"/>
+				<PasswordBox 	 Width="180"
+								Controls:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(Controls:TextBoxHelper.HasText), Mode=OneWay}"
+								Controls:TextBoxHelper.IsWaitingForData="True"
+								Controls:TextBoxHelper.UseFloatingWatermark="True"
+								Controls:TextBoxHelper.Watermark="Enter domain admin pas..."
+								Style="{StaticResource MetroButtonRevealedPasswordBox}" />		
+                                				<PasswordBox 	 Width="180" Margin="0,10,0,0"
+								Controls:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(Controls:TextBoxHelper.HasText), Mode=OneWay}"
+								Controls:TextBoxHelper.IsWaitingForData="True"
+								Controls:TextBoxHelper.UseFloatingWatermark="True"
+								Controls:TextBoxHelper.Watermark="Enter domain admin pas..."
+								Style="{StaticResource MetroButtonRevealedPasswordBox}" />			
+				<Button Margin="0,10,0,5"  Width="180" Height="30" Content="Set New Password" IsEnabled="False" />
+            </StackPanel>
+         </StackPanel>
+        <StackPanel>
+                <ListView x:Name="userListView" Margin="10,10,10,20" >
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="" Width="35">
@@ -121,6 +155,9 @@
                         </GridView>
                     </ListView.View>
                 </ListView>
+            </StackPanel>  
+    </StackPanel>
+
             </TabItem>
             <TabItem Header="Admin Mode" x:Name="tabAdmin">
                 <ListView x:Name="adminListView" HorizontalAlignment="Left" Height="350" Margin="7,205,0,0" VerticalAlignment="Top" Width="772">

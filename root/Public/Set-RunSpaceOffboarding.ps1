@@ -544,6 +544,8 @@
             # Remove groups if setting is active
             If ($removeGroups -eq $true)
             { 
+                $offboardingResults.removeGrps = $true
+                
                 [array]$userGroupMembership = @()
                 $userGroupMembership = Get-ADPrincipalGroupMembership $userDistName -server $dc -Credential $credentials
                 $userGroupMembership = $userGroupMembership | Where-Object { $_.SamAccountName -ne "Domain Users" -and $_.SamAccountName -ne "Domänen-Benutzer" }
@@ -572,8 +574,9 @@
                     # Check if user is already in disabled folder
                     If ($userDistName -notmatch $disabledFolder)
                     {
-                        $temp = Move-ADObject -Identity $userDistName -server $dc -TargetPath $disabledFolder -credential $credentials 
+                        $temp = Move-ADObject -Identity $userDistName -server $dc -TargetPath $disabledFolder -credential $credentials
                     }
+                    $offboardingResults.moved = $true
                 }
                 catch
                 {
@@ -628,6 +631,12 @@
         # Refresh the gui if the last Runspace has finished
         If ($syncHash.activeRunspaces -eq 0)
         {
+
+            If ($task -eq "disable")
+            {
+               
+            } 
+            
             $syncHash.Window.Dispatcher.invoke([action] {
                     $Global:dbOffboarding = $Global:dbOffboarding | Sort-Object -Property domainName -Descending
                     Start-Sleep -Seconds 1
