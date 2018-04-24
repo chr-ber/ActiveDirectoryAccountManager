@@ -32,7 +32,6 @@
         # Safe password in variable of user
         $userObject.pswdVer = $credentials
         
-
         # If domain needed credentials to scan for user, use runspaceping to update the entries
         if ($userObject.accountStatus -match "Verification required")
         {
@@ -43,7 +42,9 @@
                     RunspacePing -totalJobs 1 -userListView $Global:userListView -dbUser $Global:dbUser -syncHash $syncHash -samAccountNAme $env:USERNAME -dc $userObject.dc -domainName $userObject.domainName -whatIf $true -credentials $credentials
                 }
                 "tabAdmin"
-                {}
+                {
+                    
+                }
                 "tabOffboarding"
                 {
                     Set-RunSpaceOffboarding -offboardingListView $Global:offboardingListView -dbOffboarding $Global:dbOffboarding -syncHash $syncHash -adminAccount $env:USERNAME -userAccount $syncHash.userBoxDisable.Text -dc $userObject.dc -domainName $userObject.domainName -domainBase $userObject.domainBase -credentials $credentials -task search

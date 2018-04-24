@@ -197,7 +197,7 @@
                 {
                     $dbLink.userAccount = $user.SamAccountName
                     $dbLink.userDisplayName = $user.displayName
-                    $dbLink.userOu = [regex]::Match($user.DistinguishedName, "CN=.*[OC][UN]=([- _\d\w]*),").Groups[1].Value
+                    $dbLink.userOu = [regex]::Match($user.DistinguishedName, "CN=[a-zA-Z ]*,[OC][UN]=([- _\d\w]*),").Groups[1].Value
                     $dbLink.userMemberOf = $user.MemberOf.Count
                     $dbLink.adObject = $user
                     $dbLink.userDistName = $user.DistinguishedName
@@ -327,7 +327,7 @@
                 }
 
                 # Variables to keep exception message for do while loop and a counter    
-                $exception = $null
+                [string]$exception
                 $loopCount = 0
                 # Get accounts from AD, try multiple domain controllers in case it cant reach it
                 do
@@ -352,21 +352,16 @@
 
                         Get-Date -format yy-MM-dd-hh:mm:ss | Out-File -FilePath "C:\coding\ActiveDirectoryAccountManager\logs\runspaceError.txt" -Append
                         "`t" + $_.Exception.Message | Out-File -FilePath "C:\coding\ActiveDirectoryAccountManager\logs\runspaceError.txt" -Append
-                        "`t$domainName\$adminAccount @ $dc" | Out-File -FilePath "C:\coding\ActiveDirectoryAccountManager\logs\runspaceError.txt" -Append
+                        "`t$domainName\$adminAccount @ $dc - current run:$loopCount of $dcCount" | Out-File -FilePath "C:\coding\ActiveDirectoryAccountManager\logs\runspaceError.txt" -Append
 
                         # If unable to connect dc try next one
                         If ($exception -match "Unable to contact the server")
                         {
                             $dc = $dc.Replace("$loopCount", ($loopCount + 1))
-                        }
-                        else 
-                        {
-                            Start-Sleep -Milliseconds 333
-                        }
-                        
+                        }                     
                         
                     }
-                }While (($exception -match "Unable to contact the server" -and $loopCount -le $dcCount) -or $exception -match "invalid enumeration context")
+                }While (($exception -match "Unable to contact the server"  -or $exception -match "invalid enumeration context" ) -and $loopCount -lt $dcCount)
             }
 
             # Error handling

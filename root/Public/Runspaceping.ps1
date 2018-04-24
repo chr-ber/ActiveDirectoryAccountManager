@@ -75,6 +75,7 @@
     $Runspace.SessionStateProxy.SetVariable("dbUser",$dbUser)
     $Runspace.SessionStateProxy.SetVariable("pswd",$pswd)
     $Runspace.SessionStateProxy.SetVariable("pswd",$credentials)
+    $Runspace.SessionStateProxy.SetVariable("predictAccounts",$true)    
     #[Collections.Arraylist]$qwinstaResults = @() 
     # Create an empty array that we'll use later
     #$RunspaceCollection = @()
@@ -89,6 +90,8 @@
             }
             # Set flag that this call will now edit the db
             $syncHash.editDB = $true
+            [integer]$index
+            
 
             foreach($user in $userTable)
 	        {    
@@ -103,19 +106,15 @@
                 # Search for a matching entry in our current database
                 foreach($dbEntry in $dbUser)
                 {
-                    If($dbEntry.domainName -eq $user.domainName)
+                    If ($dbEntry.domainName -eq $user.domainName)
                     {
-                        If(($dbEntry.samAccount -like "" ) -or ($user.SamAccountName -like $dbEntry.samAccount))
+                        If (($dbEntry.SamAccount -like "" ) -or ($user.SamAccountName -eq $dbEntry.userAccount))
                         {
-                            write-host "update entry"
-                            $dbEntry.adObject = $user
-                            $dbEntry.samAccount = $user.SamAccountName
-                            $dbEntry.displayName = $user.displayName
-                            $dbEntry.accountStatus = $user.status
                             $entryFound = $true
                             $dbLink = $dbEntry
+                            $index = $dbUser.IndexOf($dbEntry)
                             break;
-                        }              
+                        }
                     }
                 }
 
@@ -126,15 +125,24 @@
                     {
                         If($dbEntry.domainName -eq "")
                         {
-                            $dbEntry.adObject = $user
-                            $dbEntry.samAccount = $user.SamAccountName
-                            $dbEntry.displayName = $user.displayName
-                            $dbEntry.accountStatus = $user.status
-                            $dbEntry.domainName = $user.domainName
                             $dbLink = $dbEntry
+                            $dbLink.domainBase = $dbUser[$index].domainBase
+                            $dbLink.dc = $dbUser[$index].dc
                             break;             
                         }
                     }
+                }
+
+                # Set minimal information in case entry requires search with credentials
+                $dbLink.accountStatus = $user.status
+                $dbLink.domainName = $user.domainName
+
+                # If user entry has been passed
+                If ($user.SamAccountName)
+                {
+                    $dbLink.adObject = $user
+                    $dbLink.samAccount = $user.SamAccountName
+                    $dbLink.displayName = $user.displayName
                 }
 
                  If($user.healthy -eq $true)
@@ -235,39 +243,46 @@
         }
 
         # Error handling
-        If($exception -ne $null)
+        If ($exception -ne $null)
         {
             # Predict account names, will be tested with real credentials
-            If($exception -match "The Server has rejected the client credentials.")
+            If ($exception -match "The Server has rejected the client credentials." -or $exception -match "A call to SSPI failed, see inner exception.")
             {
-                $adAccounts = @([pscustomobject]@{samAccountName=$normalAccount;})           
-                # Predict 2nd account if it is an office domain
-                if ($officeDomain -eq "true")
+                If ($predictAccounts -eq $true)
                 {
-                    $adAccounts += @([pscustomobject]@{samAccountName=$adminAccount;})
+                    $adAccounts = @([pscustomobject]@{samAccountName = $normalAccount; })           
+                    # Predict 2nd account if it is an office domain
+                    if ($officeDomain -eq "true")
+                    {
+                        $adAccounts += @([pscustomobject]@{samAccountName = $adminAccount; })
+                    } 
                 }
-                Write-host "Predicting " $adAccounts.Count " as credentials were declined"
-                $accountStatus = "Verifictaion required"     
+
+                $accountStatus = "Verification required"     
             }
             # If we tried to contact all domain controllers without success
-            elseif($exception -match "Unable to contact the server" -and $dcCount -eq $loopCount)
+            elseif ($exception -match "Unable to contact the server" -and $dcCount -eq $loopCount)
             {
                 $accountStatus = "domain controllers not reachable"
-                $adAccounts = @([pscustomobject]@{samAccountName="no account";})
+                $adAccounts = @([pscustomobject]@{samAccountName = "ERROR"; })
             }
             else
             {
                 $accountStatus = "not able to find user due to unknown error"
-                $adAccounts = @([pscustomobject]@{samAccountName="no account";})
+                $adAccounts = @([pscustomobject]@{samAccountName = "ERROR"; })
             }
         }
 
-        # If no account was found
-        if($adAccounts -eq $null)
-        {
-            $accountStatus = "there were no accounts found in this domain"
-            $adAccounts = @([pscustomobject]@{samAccountName="no account";})
-        }
+            # If no account was found
+            if ($adAccounts -eq $null -and ($exception))
+            {
+                $adAccounts = @([pscustomobject]@{accountStatus = $accountStatus; })
+            }
+            elseif ($adAccounts -eq $null)
+            {
+                $accountStatus = "there were no accounts found in this domain"
+                $adAccounts = @([pscustomobject]@{accountStatus = $accountStatus; })
+            }
 
 
         # Set account status for each user
@@ -301,7 +316,7 @@
             }
 
             # Set flag if user account is in an ok state
-            If($accountStatus -eq "Healthy" -or $accountStatus -eq "Verifictaion required")
+            If($accountStatus -eq "Healthy" -or $accountStatus -eq "Verification required")
             {
                 $adAccount | Add-Member -NotePropertyName healthy -NotePropertyValue $true -Force            
             }

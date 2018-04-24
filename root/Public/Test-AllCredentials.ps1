@@ -17,9 +17,15 @@
 
     foreach ($userObject in $dbCurrent)
     {
+        # Skip empty objects
+        if(!($userObject.domainName))
+        {
+            continue
+        }
         # Skipps loop if the account is in a bad state, pswd has already been set or the account is not checked
         if ((!($userObject.accountStatus -eq "Healthy" -or $userObject.accountStatus -eq "Verification required")) -or $userObject.IsChecked -eq $false -or ($userObject.pswdVer))
         {
+            Write-Host "Test-Credentials: Skipped "$userObject.samAccount" in "$userObject.domainName
             continue
         }
         else

@@ -91,6 +91,41 @@ $btnAccent += $syncHash.Window.FindName("btnAccentSienna")
 $btnAccent | ForEach-Object { $_.Add_Click( {Set-AccentColor $this})}
 $btnThemeWhite.Add_Click( {Set-ThemeSkin $this})
 $btnThemeBlack.Add_Click( {Set-ThemeSkin $this})
+#######################################
+######## Password Change tab 
+##########################
+
+$searchAccounts = $syncHash.Window.FindName("searchAccounts")
+$searchAccounts.Add_Click(
+{
+    Get-AllDomainAccounts
+})
+
+$pwdBoxCur = $syncHash.Window.FindName("pwdBoxCur")
+$pwdBoxCur.Add_PasswordChanged(
+{	
+    TextBoxPasswordHandler $_.KeyCode $pwdBoxCur.SecurePassword $pwdVerBtn
+})
+
+$pwdVerBtn = $syncHash.Window.FindName("pwdVerBtn")
+$pwdVerBtn.Add_Click(
+{	
+    Test-AllCredentials
+})
+
+
+
+$pwdBoxNew1 = $syncHash.Window.FindName("pwdBoxNew1")
+$pwdBoxNew2 = $syncHash.Window.FindName("pwdBoxNew2")
+
+$togglePwRnd = $syncHash.Window.FindName("togglePwRnd")
+$togglePwInd = $syncHash.Window.FindName("togglePwInd")
+
+$togglePwRnd.Add_Click(
+{	
+    $pwdBoxNew1.IsEnabled = !$togglePwRnd.IsChecked
+    $pwdBoxNew2.IsEnabled = !$togglePwRnd.IsChecked
+})
 
 #######################################
 ######## Offboarding tab 
