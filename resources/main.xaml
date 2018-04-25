@@ -143,25 +143,12 @@
                             <GridViewColumn x:Name ="verifyBtnDataTemp" Header="Verify Password" Width="165">
                                 <GridViewColumn.CellTemplate >
 									 <DataTemplate>
-										<Button Visibility="{Binding pswdVerifyBtnVisible}"
-												IsEnabled="{Binding IsEnabled}"
-												Content="{Binding pswdVerifyBtnText}"
-												Command ="{Binding pswdVerifyClick}"
-												Margin="5,0,0,0"
-												VerticalAlignment="Center">
-										</Button>
 									</DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Header="Set Password" Width="165">
+                            <GridViewColumn x:Name ="setBtnDataTemp" Header="Set Password" Width="165">
                                 <GridViewColumn.CellTemplate>
 									 <DataTemplate>
-										<Button Visibility="{Binding pswdVerifyBtnVisible}"
-												IsEnabled="{Binding IsEnabled}"
-												Content="{Binding pswdVerifyBtnText}"
-												Margin="5,0,0,0"
-												VerticalAlignment="Center">
-										</Button>
 									</DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -170,7 +157,6 @@
                 </ListView>
             </StackPanel>  
     </StackPanel>
-
             </TabItem>
             <TabItem Header="Admin Mode" x:Name="tabAdmin">
                 <ListView x:Name="adminListView" HorizontalAlignment="Left" Height="350" Margin="7,205,0,0" VerticalAlignment="Top" Width="772">

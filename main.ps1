@@ -1,21 +1,17 @@
 ﻿Clear-Host
 # Set manual script location if running in powershell ISE
-If (!$PSScriptRoot -or $PSScriptRoot -eq "")
-{
+If (!$PSScriptRoot -or $PSScriptRoot -eq "") {
     # Replace the location with your location of the root folder
     # If office notebook
-    If ($env:COMPUTERNAME -eq "NB0179")
-    {
+    If ($env:COMPUTERNAME -eq "NB0179") {
         $Global:scriptLocation = "C:\PowerShell\UCPM"
     }
     # If at home
-    else
-    {
+    else {
         $Global:scriptLocation = "C:\PowerShell\UCPM"
     }
 }
-else
-{
+else {
     $Global:scriptLocation = $PSScriptRoot
 }
 
@@ -26,8 +22,7 @@ else
 Import-Module "$Global:scriptLocation\root" -Verbose -Force
 Set-Assemblies
 
-While ($false)
-{
+While ($false) {
     its-cool;
 }
 
@@ -91,29 +86,28 @@ $btnAccent += $syncHash.Window.FindName("btnAccentSienna")
 $btnAccent | ForEach-Object { $_.Add_Click( {Set-AccentColor $this})}
 $btnThemeWhite.Add_Click( {Set-ThemeSkin $this})
 $btnThemeBlack.Add_Click( {Set-ThemeSkin $this})
+
 #######################################
 ######## Password Change tab 
 ##########################
 
 $searchAccounts = $syncHash.Window.FindName("searchAccounts")
 $searchAccounts.Add_Click(
-{
-    Get-AllDomainAccounts
-})
+    {
+        Get-AllDomainAccounts
+    })
 
 $pwdBoxCur = $syncHash.Window.FindName("pwdBoxCur")
 $pwdBoxCur.Add_PasswordChanged(
-{	
-    TextBoxPasswordHandler $_.KeyCode $pwdBoxCur.SecurePassword $pwdVerBtn
-})
+    {	
+        TextBoxPasswordHandler $_.KeyCode $pwdBoxCur.SecurePassword $pwdVerBtn
+    })
 
 $pwdVerBtn = $syncHash.Window.FindName("pwdVerBtn")
 $pwdVerBtn.Add_Click(
-{	
-    Test-AllCredentials
-})
-
-
+    {	
+        Test-AllCredentials
+    })
 
 $pwdBoxNew1 = $syncHash.Window.FindName("pwdBoxNew1")
 $pwdBoxNew2 = $syncHash.Window.FindName("pwdBoxNew2")
@@ -122,10 +116,10 @@ $togglePwRnd = $syncHash.Window.FindName("togglePwRnd")
 $togglePwInd = $syncHash.Window.FindName("togglePwInd")
 
 $togglePwRnd.Add_Click(
-{	
-    $pwdBoxNew1.IsEnabled = !$togglePwRnd.IsChecked
-    $pwdBoxNew2.IsEnabled = !$togglePwRnd.IsChecked
-})
+    {	
+        $pwdBoxNew1.IsEnabled = !$togglePwRnd.IsChecked
+        $pwdBoxNew2.IsEnabled = !$togglePwRnd.IsChecked
+    })
 
 #######################################
 ######## Offboarding tab 
@@ -163,9 +157,16 @@ $Global:toggleIsTop = $syncHash.Window.FindName("windowStayTop")
 ##########################
 
 # Create click event for dynamic button
-[System.Windows.RoutedEventHandler]$clickEvent = {
+[System.Windows.RoutedEventHandler]$funcTestCredentials = {
     param ($sender, $e)
     Set-PasswordOverlay -dataContext $sender.DataContext
+}
+
+# Create click event for dynamic button
+[System.Windows.RoutedEventHandler]$funcSetCredentials = {
+    param ($sender, $e)
+    Write-Host "Set password bitch"
+    #Set-PasswordOverlay -dataContext $sender.DataContext
 }
 
 <# $button.Add_Click(
@@ -212,8 +213,10 @@ $Global:toggleIsTop.Add_Click( {Set-WindowStayTop})
 # current user tab Datatemp
 ##############
 
+###### Verify password data template
 # Find gridviewcolumn we will attach our datatemplate to
-$dataTempXml = $syncHash.Window.FindName("verifyBtnDataTemp")
+$verifyBtnDataTemp = $syncHash.Window.FindName("verifyBtnDataTemp")
+
 # Create bindings
 $bindPwdCurText = New-Object System.Windows.Data.Binding
 $bindPwdCurText.path = "pswdVerifyBtnText"
@@ -223,12 +226,31 @@ $bindPwdEnabled = New-Object System.Windows.Data.Binding
 $bindPwdEnabled.path = "pswdVerifyBtnEnabled"
 # Create button factory
 $buttonFactory = New-Object System.Windows.FrameworkElementFactory([System.Windows.Controls.Button])
-$buttonFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, [System.Windows.RoutedEventHandler]$clickEvent)
+$buttonFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, [System.Windows.RoutedEventHandler]$funcTestCredentials)
 # Add bindings
 $buttonFactory.SetBinding([System.Windows.Controls.Button]::ContentProperty, $bindPwdCurText)
 $buttonFactory.SetBinding([System.Windows.Controls.Button]::VisibilityProperty, $bindPwdVisibility)
 $buttonFactory.SetBinding([System.Windows.Controls.Button]::IsEnabledProperty, $bindPwdEnabled)
-$dataTempXml.CellTemplate.VisualTree = $buttonFactory
+$verifyBtnDataTemp.CellTemplate.VisualTree = $buttonFactory
+
+###### Set password data template
+$setBtnDataTemp = $syncHash.Window.FindName("setBtnDataTemp")
+
+$pswdSetBtnText = New-Object System.Windows.Data.Binding
+$pswdSetBtnVisible = New-Object System.Windows.Data.Binding
+$pswdSetBtnEnabled = New-Object System.Windows.Data.Binding
+$pswdSetBtnText.path = "pswdSetBtnText"
+$pswdSetBtnVisible.path = "pswdSetBtnVisible"
+$pswdSetBtnEnabled.path = "pswdSetBtnEnabled"
+
+$buttonFactory = New-Object System.Windows.FrameworkElementFactory([System.Windows.Controls.Button])
+$buttonFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, [System.Windows.RoutedEventHandler]$funcSetCredentials)
+# Add bindings
+$buttonFactory.SetBinding([System.Windows.Controls.Button]::ContentProperty, $pswdSetBtnText)
+$buttonFactory.SetBinding([System.Windows.Controls.Button]::VisibilityProperty, $pswdSetBtnVisible)
+$buttonFactory.SetBinding([System.Windows.Controls.Button]::IsEnabledProperty, $pswdSetBtnEnabled)
+$setBtnDataTemp.CellTemplate.VisualTree = $buttonFactory
+
 
 ##############
 # offboarding tab Datatemp
@@ -242,7 +264,7 @@ $bindPwdVisibility.path = "pswdVerifyBtnVisible"
 $bindPwdEnabled.path = "pswdVerifyBtnEnabled"
 # Create button factory
 $buttonFactory = New-Object System.Windows.FrameworkElementFactory([System.Windows.Controls.Button])
-$buttonFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, [System.Windows.RoutedEventHandler]$clickEvent)
+$buttonFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, [System.Windows.RoutedEventHandler]$funcTestCredentials)
 # Add bindings
 $buttonFactory.SetBinding([System.Windows.Controls.Button]::ContentProperty, $bindPwdCurText)
 $buttonFactory.SetBinding([System.Windows.Controls.Button]::VisibilityProperty, $bindPwdVisibility)
