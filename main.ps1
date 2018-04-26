@@ -1,17 +1,21 @@
 ﻿Clear-Host
 # Set manual script location if running in powershell ISE
-If (!$PSScriptRoot -or $PSScriptRoot -eq "") {
+If (!$PSScriptRoot -or $PSScriptRoot -eq "")
+{
     # Replace the location with your location of the root folder
     # If office notebook
-    If ($env:COMPUTERNAME -eq "NB0179") {
+    If ($env:COMPUTERNAME -eq "NB0179")
+    {
         $Global:scriptLocation = "C:\PowerShell\UCPM"
     }
     # If at home
-    else {
+    else
+    {
         $Global:scriptLocation = "C:\PowerShell\UCPM"
     }
 }
-else {
+else
+{
     $Global:scriptLocation = $PSScriptRoot
 }
 
@@ -22,7 +26,8 @@ else {
 Import-Module "$Global:scriptLocation\root" -Verbose -Force
 Set-Assemblies
 
-While ($false) {
+While ($false)
+{
     its-cool;
 }
 
@@ -165,7 +170,7 @@ $Global:toggleIsTop = $syncHash.Window.FindName("windowStayTop")
 # Create click event for dynamic button
 [System.Windows.RoutedEventHandler]$funcSetCredentials = {
     param ($sender, $e)
-    Write-Host "Set password bitch"
+    Set-NewPasswordOverlay -dataContext $sender.DataContext
     #Set-PasswordOverlay -dataContext $sender.DataContext
 }
 

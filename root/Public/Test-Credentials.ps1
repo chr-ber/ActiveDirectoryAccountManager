@@ -39,7 +39,7 @@
             {
                 "tabUser"
                 {
-                    RunspacePing -totalJobs 1 -userListView $Global:userListView -dbUser $Global:dbUser -syncHash $syncHash -samAccountNAme $env:USERNAME -dc $userObject.dc -domainName $userObject.domainName -whatIf $true -credentials $credentials
+                    RunspacePing -userListView $Global:userListView -dbUser $Global:dbUser -syncHash $syncHash -samAccountName $env:USERNAME -dc $userObject.dc -domainName $userObject.domainName -credentials $credentials
                 }
                 "tabAdmin"
                 {
@@ -49,6 +49,20 @@
                 {
                     Set-RunSpaceOffboarding -offboardingListView $Global:offboardingListView -dbOffboarding $Global:dbOffboarding -syncHash $syncHash -adminAccount $env:USERNAME -userAccount $syncHash.userBoxDisable.Text -dc $userObject.dc -domainName $userObject.domainName -domainBase $userObject.domainBase -credentials $credentials -task search
                 }
+            }
+        }
+
+        Switch ($Global:tabControl.SelectedItem.Name)
+        {
+            "tabUser"
+            {
+                #Enable set password button
+                $userObject.pswdSetBtnVisible = "Visible"
+            }
+            "tabAdmin"
+            {}
+            "tabOffboarding"
+            {
             }
         }
         return $true

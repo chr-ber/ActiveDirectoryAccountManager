@@ -1,90 +1,83 @@
-﻿function RunspacePing {
+﻿function RunspacePing
+{
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         $syncHash,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         $samAccountName = $env:USERNAME,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         $dc,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         $dcCount = 2,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         $domainName,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         $officeDomain = $true,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         $returnAdmin = $false,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [int]$pswdHistory = 24,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         $dbUser,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         $userListView,
         
-        [Parameter(Mandatory=$false)]
-        [ValidateNotNullOrEmpty()]
-        $totalJobs,
-
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         $pswd,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         $credentials,
     
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [bool]$whatIf = $false    
     )
 
     $syncHash.Host = $host
-    $syncHash.editDB = $false
     $Runspace = [runspacefactory]::CreateRunspace()
     $Runspace.ApartmentState = "STA"
     $Runspace.ThreadOptions = "ReuseThread"
     $Runspace.Open()
     $syncHash.activeRunspaces++
-    $Runspace.SessionStateProxy.SetVariable("totalJobs",$totalJobs)
-    $Runspace.SessionStateProxy.SetVariable("syncHash",$syncHash) 
-    $Runspace.SessionStateProxy.SetVariable("samAccountName",$samAccountName)
-    $Runspace.SessionStateProxy.SetVariable("dc",$dc)
-    $Runspace.SessionStateProxy.SetVariable("domainName",$domainName)
-    $Runspace.SessionStateProxy.SetVariable("whatIf",$whatIf)
-    $Runspace.SessionStateProxy.SetVariable("userListView",$userListView)
-    $Runspace.SessionStateProxy.SetVariable("dbUser",$dbUser)
-    $Runspace.SessionStateProxy.SetVariable("pswd",$pswd)
-    $Runspace.SessionStateProxy.SetVariable("pswd",$credentials)
-    $Runspace.SessionStateProxy.SetVariable("predictAccounts",$true)    
-    #[Collections.Arraylist]$qwinstaResults = @() 
-    # Create an empty array that we'll use later
-    #$RunspaceCollection = @()
+    $Runspace.SessionStateProxy.SetVariable("syncHash", $syncHash) 
+    $Runspace.SessionStateProxy.SetVariable("samAccountName", $samAccountName)
+    $Runspace.SessionStateProxy.SetVariable("dc", $dc)
+    $Runspace.SessionStateProxy.SetVariable("domainName", $domainName)
+    $Runspace.SessionStateProxy.SetVariable("whatIf", $whatIf)
+    $Runspace.SessionStateProxy.SetVariable("userListView", $userListView)
+    $Runspace.SessionStateProxy.SetVariable("dbUser", $dbUser)
+    $Runspace.SessionStateProxy.SetVariable("pswd", $pswd)
+    $Runspace.SessionStateProxy.SetVariable("predictAccounts", $true)
+    $Runspace.SessionStateProxy.SetVariable("credentials", $credentials)
+
     $code = {
 
         Function Set-CurrentUserDatabase($userTable, $syncHash, $userListView, $dbUser)
         {
             # Check if runspace is editing database and sleep until call can take turn
-            While($syncHash.editDB -eq $true)
+            While ($syncHash.editDB -eq $true)
             {
                 Sleep -Milliseconds (Get-Random -Minimum 50 -Maximum 500)
             }
@@ -93,42 +86,40 @@
             [integer]$index
             
 
-            foreach($user in $userTable)
-	        {    
+            foreach ($user in $userTable)
+            {    
                 # Skip blank returns from Get-Job
-                If(!$user){continue;}
-
-                Write-host "Searching for " $user.SamAccountName " " $user.domainName
+                If (!$user) {continue; }
 
                 $entryFound = $false
                 $dbLink
 
                 # Search for a matching entry in our current database
-                foreach($dbEntry in $dbUser)
+                foreach ($dbEntry in $dbUser)
                 {
                     If ($dbEntry.domainName -eq $user.domainName)
                     {
-                        If (($dbEntry.SamAccount -like "" ) -or ($user.SamAccountName -eq $dbEntry.userAccount))
+                        If (($dbEntry.SamAccount -like "" ) -or ($user.SamAccountName -eq $dbEntry.SamAccount))
                         {
                             $entryFound = $true
                             $dbLink = $dbEntry
                             $index = $dbUser.IndexOf($dbEntry)
-                            break;
+                            break
                         }
                     }
                 }
 
                 # If no entry has been found create one
-                If($entryFound -eq $false)
+                If ($entryFound -eq $false)
                 {
-                    foreach($dbEntry in $dbUser)
+                    foreach ($dbEntry in $dbUser)
                     {
-                        If($dbEntry.domainName -eq "")
+                        If ($dbEntry.domainName -eq "")
                         {
                             $dbLink = $dbEntry
                             $dbLink.domainBase = $dbUser[$index].domainBase
                             $dbLink.dc = $dbUser[$index].dc
-                            break;             
+                            break
                         }
                     }
                 }
@@ -145,7 +136,7 @@
                     $dbLink.displayName = $user.displayName
                 }
 
-                 If($user.healthy -eq $true)
+                If ($user.healthy -eq $true)
                 {
                     $dbLink.pswdVerifyBtnVisible = "Visible"
                     $dbLink.IsChecked = $true
@@ -157,16 +148,10 @@
                     $dbLink.IsChecked = $false
                     $dbLink.IsEnabled = $false
                 }
-
                 $dbLink.IsVisible = "Visible"
-
-                    #$syncHash.Window.Dispatcher.invoke(  
-        #[action]{$userListView.ItemsSource = $Global:dbUser;$userListView.Items.Refresh();})
-#            Start-Sleep -seconds 5
-
-	        }
-        # Set flag that this call is done with editing the db
-        $syncHash.editDB = $false
+            }
+            # Set flag that this call is done with editing the db
+            $syncHash.editDB = $false
         } # End Function Set-CurrentDatabase
       
         # Can be used to simulate results
@@ -177,33 +162,39 @@
             Start-Sleep (Get-Random -Minimum 1 -Maximum 2)
 
             # Return one of the account cases
-            switch(Get-Random -Minimum 1 -Maximum 9)
+            switch (Get-Random -Minimum 1 -Maximum 9)
             #switch(5)
             {
-                "1"{$adAccounts = @([pscustomobject]@{SamAccountName="a-cberg";Enabled=$true;LockedOut=$true;PasswordLastSet=((Get-Date).AddDays(-10));DisplayName="a-cberg";PasswordExpired=$false})}
-                "2"{$adAccounts = @([pscustomobject]@{SamAccountName="a-cberg";Enabled=$false;LockedOut=$false;PasswordLastSet=((Get-Date).AddDays(-10));DisplayName="a-cberg";PasswordExpired=$false})}
-                "3"{$adAccounts = @([pscustomobject]@{SamAccountName="cberg";Enabled=$true;LockedOut=$false;PasswordLastSet=(Get-Date);DisplayName="Christopher Berger";PasswordExpired=$false})}
-                "4"{$adAccounts = @([pscustomobject]@{SamAccountName="a-cberg";Enabled=$true;LockedOut=$false;PasswordLastSet=((Get-Date).AddDays(-10));DisplayName="a-cberg";PasswordExpired=$false})}
-                "5"{$adAccounts = @([pscustomobject]@{SamAccountName="cberg";Enabled=$true;LockedOut=$false;PasswordLastSet=((Get-Date).AddDays(-10));DisplayName="Christopher Berger";PasswordExpired=$false}),
-                                    ([pscustomobject]@{SamAccountName="a-cberg";Enabled=$true;LockedOut=$false;PasswordLastSet=((Get-Date).AddDays(-10));DisplayName="a-cberg";PasswordExpired=$false})}
-                "6"{$exception = "The Server has rejected the client credentials."; $officeDomain = $true; $normalAccount = "cberg"; $adminAccount = "a-cberg"}
-                "7"{$exception = "The Server has rejected the client credentials.";$officeDomain = $false; $normalAccount = "cberg"; $adminAccount = "a-cberg"}
-                "8"{$adAccounts = @([pscustomobject]@{SamAccountName="cberg";Enabled=$true;LockedOut=$false;PasswordLastSet=((Get-Date));DisplayName="Christopher Berger";PasswordExpired=$false}),
-                                    ([pscustomobject]@{SamAccountName="a-cberg";Enabled=$true;LockedOut=$false;PasswordLastSet=((Get-Date).AddDays(-10));DisplayName="a-cberg";PasswordExpired=$false})}
-                "9"{$loopCount = $dcCount}
+                "1" {$adAccounts = @([pscustomobject]@{SamAccountName = "a-cberg"; Enabled = $true; LockedOut = $true; PasswordLastSet = ((Get-Date).AddDays(-10)); DisplayName = "a-cberg"; PasswordExpired = $false})
+                }
+                "2" {$adAccounts = @([pscustomobject]@{SamAccountName = "a-cberg"; Enabled = $false; LockedOut = $false; PasswordLastSet = ((Get-Date).AddDays(-10)); DisplayName = "a-cberg"; PasswordExpired = $false})
+                }
+                "3" {$adAccounts = @([pscustomobject]@{SamAccountName = "cberg"; Enabled = $true; LockedOut = $false; PasswordLastSet = (Get-Date); DisplayName = "Christopher Berger"; PasswordExpired = $false})
+                }
+                "4" {$adAccounts = @([pscustomobject]@{SamAccountName = "a-cberg"; Enabled = $true; LockedOut = $false; PasswordLastSet = ((Get-Date).AddDays(-10)); DisplayName = "a-cberg"; PasswordExpired = $false})
+                }
+                "5" {$adAccounts = @([pscustomobject]@{SamAccountName = "cberg"; Enabled = $true; LockedOut = $false; PasswordLastSet = ((Get-Date).AddDays(-10)); DisplayName = "Christopher Berger"; PasswordExpired = $false}),
+                    ([pscustomobject]@{SamAccountName = "a-cberg"; Enabled = $true; LockedOut = $false; PasswordLastSet = ((Get-Date).AddDays(-10)); DisplayName = "a-cberg"; PasswordExpired = $false})
+                }
+                "6" {$exception = "The Server has rejected the client credentials."; $officeDomain = $true; $normalAccount = "cberg"; $adminAccount = "a-cberg"}
+                "7" {$exception = "The Server has rejected the client credentials."; $officeDomain = $false; $normalAccount = "cberg"; $adminAccount = "a-cberg"}
+                "8" {$adAccounts = @([pscustomobject]@{SamAccountName = "cberg"; Enabled = $true; LockedOut = $false; PasswordLastSet = ((Get-Date)); DisplayName = "Christopher Berger"; PasswordExpired = $false}),
+                    ([pscustomobject]@{SamAccountName = "a-cberg"; Enabled = $true; LockedOut = $false; PasswordLastSet = ((Get-Date).AddDays(-10)); DisplayName = "a-cberg"; PasswordExpired = $false})
+                }
+                "9" {$loopCount = $dcCount}
             }
         }
         else
         {
         
             # If password is set and credentials is null build credentials
-            if($pswd.GetType().Name -eq "SecureString" -and (!($credentials)))
+            if ($pswd.GetType().Name -eq "SecureString" -and (!($credentials)))
             {
                 $credentials = new-object -typename System.Management.Automation.PSCredential($samAccountName, $pswd)
             }
                   
             # Create variable for normal and admin user account
-            if (($samAccountName.substring(0,2) -eq 'a-') -or ($samAccountName.substring(0,2) -eq 'A-'))
+            if (($samAccountName.substring(0, 2) -eq 'a-') -or ($samAccountName.substring(0, 2) -eq 'A-'))
             {
                 $adminAccount = $samAccountName
                 $normalAccount = $samAccountName.Split("a-")[2]
@@ -223,23 +214,23 @@
                 $loopCount++
                 try
                 {
-                        # If credentials is set
-                        if($credentials)
-                        {
-                            $adAccounts = Get-ADUser -Server $dc -Filter {(SamAccountName -like $normalAccount) -Or (SamAccountName -like $adminAccount)} -Properties Enabled, SamAccountName, PasswordExpired, LockedOut ,DisplayName, PasswordLastSet -Credential $credentials
-                        }
-                        else
-                        {
-                            $adAccounts = Get-ADUser -Server $dc -Filter {(SamAccountName -like $normalAccount) -Or (SamAccountName -like $adminAccount)} -Properties Enabled, SamAccountName, PasswordExpired, LockedOut ,DisplayName, PasswordLastSet                           
-                        }
+                    # If credentials is set
+                    if ($credentials)
+                    {
+                        $adAccounts = Get-ADUser -Server $dc -Filter {(SamAccountName -like $normalAccount) -Or (SamAccountName -like $adminAccount)} -Properties Enabled, SamAccountName, PasswordExpired, LockedOut , DisplayName, PasswordLastSet -Credential $credentials
+                    }
+                    else
+                    {
+                        $adAccounts = Get-ADUser -Server $dc -Filter {(SamAccountName -like $normalAccount) -Or (SamAccountName -like $adminAccount)} -Properties Enabled, SamAccountName, PasswordExpired, LockedOut , DisplayName, PasswordLastSet                           
+                    }
                 }
                 catch
                 {
                     $exception = $_.Exception.Message
                     # Increase node number on domainController
-                    $dc = $dc.Replace("$loopCount",($loopCount+1))
+                    $dc = $dc.Replace("$loopCount", ($loopCount + 1))
                 }
-            }While($exception -match "Unable to contact the server" -and $loopCount -le $dcCount)
+            }While ($exception -match "Unable to contact the server" -and $loopCount -le $dcCount)
         }
 
         # Error handling
@@ -273,41 +264,41 @@
             }
         }
 
-            # If no account was found
-            if ($adAccounts -eq $null -and ($exception))
-            {
-                $adAccounts = @([pscustomobject]@{accountStatus = $accountStatus; })
-            }
-            elseif ($adAccounts -eq $null)
-            {
-                $accountStatus = "there were no accounts found in this domain"
-                $adAccounts = @([pscustomobject]@{accountStatus = $accountStatus; })
-            }
+        # If no account was found
+        if ($adAccounts -eq $null -and ($exception))
+        {
+            $adAccounts = @([pscustomobject]@{accountStatus = $accountStatus; })
+        }
+        elseif ($adAccounts -eq $null)
+        {
+            $accountStatus = "there were no accounts found in this domain"
+            $adAccounts = @([pscustomobject]@{accountStatus = $accountStatus; })
+        }
 
 
         # Set account status for each user
-        foreach($adAccount in $adAccounts)
+        foreach ($adAccount in $adAccounts)
         {
             # If password field is not existing accounts were not found
-            If($adAccount.PasswordLastSet -ne $null)
+            If ($adAccount.PasswordLastSet -ne $null)
             {
                 # Check when password has been set to recent
                 $pswdChangeTime = ((Get-Date).Ticks - $adAccount.PasswordLastSet).TotalHours
-                if($adAccount.Enabled -eq $false )
+                if ($adAccount.Enabled -eq $false )
                 {
                     $accountStatus = "Account is disabled"
                 }
-                elseif($adAccount.LockedOut -eq $true)
+                elseif ($adAccount.LockedOut -eq $true)
                 {
                     $accountStatus = "Account is locked out"
                 }
-                elseif($adAccount.PasswordExpired -eq $true)
+                elseif ($adAccount.PasswordExpired -eq $true)
                 {
                     $accountStatus = "Password has already expired"
                 }
-                elseif($pswdChangeTime -le $pswdHistory)
+                elseif ($pswdChangeTime -le $pswdHistory)
                 {
-                    $accountStatus = "Password change possible in " + [math]::Round(($pswdHistory - $pswdChangeTime),2) + " hours"
+                    $accountStatus = "Password change possible in " + [math]::Round(($pswdHistory - $pswdChangeTime), 2) + " hours"
                 }
                 else
                 {
@@ -316,7 +307,7 @@
             }
 
             # Set flag if user account is in an ok state
-            If($accountStatus -eq "Healthy" -or $accountStatus -eq "Verification required")
+            If ($accountStatus -eq "Healthy" -or $accountStatus -eq "Verification required")
             {
                 $adAccount | Add-Member -NotePropertyName healthy -NotePropertyValue $true -Force            
             }
@@ -332,9 +323,9 @@
         $adAccounts | Add-Member -NotePropertyName domainName -NotePropertyValue $domainName -Force
 
         # If only admin account has been requested
-        If($returnAdmin -eq $true -and $adAccounts.Count -gt 1)
+        If ($returnAdmin -eq $true -and $adAccounts.Count -gt 1)
         {
-                $adAccounts = $adAccounts| ? {$_.SamAccountName -eq $adminAccount}
+            $adAccounts = $adAccounts| ? {$_.SamAccountName -eq $adminAccount}
         }  
         #return $adAccounts
         Set-CurrentUserDatabase $adAccounts $syncHash $userListView $dbUser
@@ -342,15 +333,15 @@
         #Set-CurrentUserDatabase $adAccounts
         Set-ProgressBar
 
-        If($syncHash.activeRunspaces -eq 0)
+        If ($syncHash.activeRunspaces -eq 0)
         {
-            $syncHash.Window.Dispatcher.invoke([action]{
-                $Global:dbUser = $Global:dbUser | Sort-Object -Property domainName -Descending
-                $userListView.ItemsSource = $Global:dbUser
-                $userListView.Items.Refresh()
-                $syncHash.statusBarProgress.IsIndeterminate = $false
-                $syncHash.statusBarProgress.Value = 0
-            })
+            $syncHash.Window.Dispatcher.invoke([action] {
+                    $Global:dbUser = $Global:dbUser | Sort-Object -Property domainName -Descending
+                    $userListView.ItemsSource = $Global:dbUser
+                    $userListView.Items.Refresh()
+                    $syncHash.statusBarProgress.IsIndeterminate = $false
+                    $syncHash.statusBarProgress.Value = 0
+                })
         }
     }
 
