@@ -71,6 +71,7 @@
     $Runspace.SessionStateProxy.SetVariable("pswd", $pswd)
     $Runspace.SessionStateProxy.SetVariable("predictAccounts", $true)
     $Runspace.SessionStateProxy.SetVariable("credentials", $credentials)
+    $Runspace.SessionStateProxy.SetVariable("pswdHistory", $pswdHistory)    
 
     $code = {
 

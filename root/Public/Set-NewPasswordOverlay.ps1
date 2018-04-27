@@ -28,16 +28,12 @@ Function Set-NewPasswordOverlay
         Set-PasswordOverlay $dataContext
         return
     }
-    elseif ($false)
-    {
-
-    }
 
     # If valid password has been entered
-    While ((Test-Credentials $dialogManager.SecurePassword $dataContext $false) -eq $false)
+    While ((Set-Credentials $dialogManager.SecurePassword $dataContext $false) -eq $false)
     {
         Set-MessageOverlay -msgHeader "Password was not accepted." -msgText "Either caused by password complexity or history."
-        Set-PasswordOverlay $dataContext
+        Set-NewPasswordOverlay $dataContext
         return       
     }
 

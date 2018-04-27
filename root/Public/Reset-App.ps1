@@ -26,12 +26,12 @@
         {
             if ($i -eq 1)
             {
-                $Global:dbUser += @([pscustomobject]@{IsEnabled = "true"; IsChecked = "true"; domainName = $domain.domainName; samAccount = ""; displayName = ""; accountStatus = ""; pswdVer = ""; pswdVerifyBtnText = "Set current password"; pswdVerifyBtnVisible = "Hidden"; pswdVerifyBtnEnabled = $true; pswdSetBtnText = "Set password"; pswdSetBtnVisible = "Hidden"; pswdSetBtnEnabled = $true; pswdNew = ""; dc = $domain.dc; domainBase = $domain.domainBase; officeDomain = $domain.officeDomain; adObject = ""})
+                $Global:dbUser += @([pscustomobject]@{IsEnabled = "true"; IsChecked = "true"; domainName = $domain.domainName; samAccount = ""; displayName = ""; accountStatus = ""; pswdVer = ""; pswdVerifyBtnText = "Set current password"; pswdVerifyBtnVisible = "Hidden"; pswdVerifyBtnEnabled = $true; pswdSetBtnText = "Set new password"; pswdSetBtnVisible = "Hidden"; pswdSetBtnEnabled = $true; pswdNew = ""; dc = $domain.dc; domainBase = $domain.domainBase; officeDomain = $domain.officeDomain; adObject = ""})
 
             }
             else
             {
-                $Global:dbUser += @([pscustomobject]@{IsVisible = "Hidden"; IsEnabled = ""; IsChecked = ""; domainName = ""; samAccount = ""; displayName = ""; accountStatus = ""; pswdVer = ""; pswdVerifyBtnText = "Set current password"; pswdVerifyBtnVisible = "Hidden"; pswdVerifyBtnEnabled = $true; pswdSetBtnText = "Set password"; pswdSetBtnVisible = "Hidden"; pswdSetBtnEnabled = $true; pswdNew = ""; dc = ""; domainBase = ""; officeDomain = ""; adObject = ""})
+                $Global:dbUser += @([pscustomobject]@{IsVisible = "Hidden"; IsEnabled = ""; IsChecked = ""; domainName = ""; samAccount = ""; displayName = ""; accountStatus = ""; pswdVer = ""; pswdVerifyBtnText = "Set current password"; pswdVerifyBtnVisible = "Hidden"; pswdVerifyBtnEnabled = $true; pswdSetBtnText = "Set new password"; pswdSetBtnVisible = "Hidden"; pswdSetBtnEnabled = $true; pswdNew = ""; dc = ""; domainBase = ""; officeDomain = ""; adObject = ""})
             }
         }
     }

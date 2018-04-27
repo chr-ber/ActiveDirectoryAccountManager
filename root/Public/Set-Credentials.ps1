@@ -2,7 +2,7 @@ Function Set-Credentials($pswdNew, $userObject, $whatif)
 {
     if ($whatif)
     {
-        Write-Host "Running WhatIf on Set-Credentials for domain account: " $userObject.samAccount " | doomain server: " $userObject.domainName
+        Write-Host "Running WhatIf on Set-Credentials for domain account: " $userObject.samAccount " | domain server: " $userObject.domainName
         If ((Get-Random -Maximum 10) -gt 4)
         {
             return $true
@@ -19,7 +19,7 @@ Function Set-Credentials($pswdNew, $userObject, $whatif)
 
         $credentials = new-object -typename System.Management.Automation.PSCredential(($userObject.domainBase + "\" + $userObject.samAccount), $userObject.pswdVer)
     
-        Set-AdAccountPassword -Identity $userObject.samAccount -OldPassword $userObject.pswdVer -NewPassword $pswdNew -Server $domain.server -Credential $credentials
+        Set-AdAccountPassword -Identity $userObject.samAccount -OldPassword $userObject.pswdVer -NewPassword $pswdNew -Server $userObject.dc -Credential $credentials
 
         Write-Host "Change-Password: Successfully changed password for "$userObject.domainBase"\"$userObject.samAccount
 

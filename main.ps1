@@ -26,11 +26,6 @@ else
 Import-Module "$Global:scriptLocation\root" -Verbose -Force
 Set-Assemblies
 
-While ($false)
-{
-    its-cool;
-}
-
 #######################################
 ######## Variables
 ##########################
@@ -116,14 +111,40 @@ $pwdVerBtn.Add_Click(
 
 $pwdBoxNew1 = $syncHash.Window.FindName("pwdBoxNew1")
 $pwdBoxNew2 = $syncHash.Window.FindName("pwdBoxNew2")
+$setNewPswdBtn = $syncHash.Window.FindName("setNewPswdBtn")
+
+$pwdBoxNew1.Add_PasswordChanged(
+    {	
+        Set-SetNewPasswordButton -password1 $pwdBoxNew1.SecurePassword -password2 $pwdBoxNew2.SecurePassword -button $setNewPswdBtn
+    })
+
+$pwdBoxNew2.Add_PasswordChanged(
+    {	
+        Set-SetNewPasswordButton -password1 $pwdBoxNew1.SecurePassword -password2 $pwdBoxNew2.SecurePassword -button $setNewPswdBtn        
+    })
+
+$setNewPswdBtn.Add_Click(
+    {	
+        Set-AllCredentials
+    })
 
 $togglePwRnd = $syncHash.Window.FindName("togglePwRnd")
 $togglePwInd = $syncHash.Window.FindName("togglePwInd")
+$togglePwInd.IsEnabled = $false
 
 $togglePwRnd.Add_Click(
     {	
+        # Disable new password boxes
         $pwdBoxNew1.IsEnabled = !$togglePwRnd.IsChecked
         $pwdBoxNew2.IsEnabled = !$togglePwRnd.IsChecked
+        # Reset new password box content
+        $pwdBoxNew1.Password = ""
+        $pwdBoxNew2.Password = ""
+
+        # Enable set password button and option to set password for each account random
+        $setNewPswdBtn.IsEnabled = $togglePwRnd.IsChecked
+        $togglePwInd.IsEnabled = $togglePwRnd.IsChecked
+
     })
 
 #######################################
@@ -146,50 +167,29 @@ $btnOffboard = $syncHash.Window.FindName("btnOffboard")
 $syncHash.offboToggleDisable = $syncHash.Window.FindName("toggleDisable")
 $syncHash.offboToggleRemoveGrps = $syncHash.Window.FindName("toggleRemoveGrps")
 $syncHash.offboToggleMoveDis = $syncHash.Window.FindName("toggleMoveDis")
-#$btnCurrentPswdTest = $syncHash.Window.FindName("btnCurrentPswdTest")
-#$btnCurrentPswdTest.IsEnabled = $false
 
 #######################################
 ######## Fly out
 ##########################
+
 # toggle switch
 $Global:toggleIsTop = $syncHash.Window.FindName("windowStayTop")
-
-
 
 #######################################
 ######## Add_Click
 ##########################
 
-# Create click event for dynamic button
+# Create click event for dynamic button -> set current password
 [System.Windows.RoutedEventHandler]$funcTestCredentials = {
     param ($sender, $e)
     Set-PasswordOverlay -dataContext $sender.DataContext
 }
 
-# Create click event for dynamic button
+# Create click event for dynamic button -> set new password
 [System.Windows.RoutedEventHandler]$funcSetCredentials = {
     param ($sender, $e)
     Set-NewPasswordOverlay -dataContext $sender.DataContext
-    #Set-PasswordOverlay -dataContext $sender.DataContext
 }
-
-<# $button.Add_Click(
-    {
-        Switch ($tabControl.SelectedItem.Name)
-        {
-            "tabUser"
-            {
-                Get-AllDomainAccounts
-            }
-            "tabAdmin"
-            {}
-            "tabOffboarding"
-            {
-                Get-OffboardingAccounts
-            }
-        }
-    }) #>
 
 $Global:btnFlyOut.Add_Click(
     {
@@ -282,17 +282,6 @@ $adminPswdGrid.CellTemplate.VisualTree = $buttonFactory
 
 Handle-Configuration -Option load
 Reset-App
-
-#######################################
-######## TESTS
-##########################
-
-#Write-host $Global:dbUser
-#Write-host $Global:dbAdmin
-
-###########################
-######## TESTS END
-#######################################
 
 $async = $syncHash.Window.Dispatcher.InvokeAsync( {
         $syncHash.Window.ShowDialog() | Out-Null

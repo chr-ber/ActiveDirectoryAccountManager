@@ -64,7 +64,6 @@
 						<StackPanel Orientation="Horizontal" FlowDirection="LeftToRight" Width="400" HorizontalAlignment="Left" Margin="15,10,0,0">
 							<Controls:ToggleSwitch Header="Window stay on top" x:Name="windowStayTop" Foreground="White" Background="White"/>
 						</StackPanel>
-					
 					</StackPanel>
                 </Grid>
             </Controls:Flyout>
@@ -81,7 +80,7 @@
             <TabItem Header="Change Passwords" x:Name="tabUser">
                     <StackPanel Orientation="Vertical">
                     <StackPanel Orientation="Horizontal" Height="160" VerticalAlignment="Top">
-                <StackPanel Width="225" Height="200" Orientation="Vertical" VerticalAlignment="Top">
+                <StackPanel Width="225" Height="220" Orientation="Vertical" VerticalAlignment="Top">
 				<Label Content="Search Domain Accounts" FontSize="16" Margin="0,10,0,0" FontWeight="Medium"/>
 				<Button Margin="0,0,0,0"  Width="180" Height="30" Content="Search Accounts" IsEnabled="True" x:Name="searchAccounts"/>
             </StackPanel>
@@ -107,9 +106,9 @@
 								Controls:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(Controls:TextBoxHelper.HasText), Mode=OneWay}"
 								Controls:TextBoxHelper.IsWaitingForData="True"
 								Controls:TextBoxHelper.UseFloatingWatermark="True"
-								Controls:TextBoxHelper.Watermark="Enter new password..."
+								Controls:TextBoxHelper.Watermark="Repeat new password..."
 								Style="{StaticResource MetroButtonRevealedPasswordBox}" />			
-				<Button Margin="0,10,0,5"  Width="180" Height="30" Content="Set New Password" IsEnabled="False" />
+				<Button x:Name="setNewPswdBtn" Margin="0,10,0,5"  Width="180" Height="30" Content="Set New Password" IsEnabled="False" />
             </StackPanel>
             <StackPanel Width="220" Orientation="Vertical" VerticalAlignment="Top">
                 <Label Content="Settings" FontSize="16" Margin="0,10,0,0" FontWeight="Medium"/>
@@ -140,13 +139,13 @@
                             <GridViewColumn Header="Account" DisplayMemberBinding ="{Binding 'samAccount'}" Width="75"/>
                             <GridViewColumn Header="Display Name" DisplayMemberBinding ="{Binding 'displayName'}" Width="120"/>
                             <GridViewColumn Header="Status" DisplayMemberBinding ="{Binding 'accountStatus'}" Width="265"/>
-                            <GridViewColumn x:Name ="verifyBtnDataTemp" Header="Verify Password" Width="165">
+                            <GridViewColumn x:Name ="verifyBtnDataTemp" Header="Current Password" Width="165">
                                 <GridViewColumn.CellTemplate >
 									 <DataTemplate>
 									</DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn x:Name ="setBtnDataTemp" Header="Set Password" Width="165">
+                            <GridViewColumn x:Name ="setBtnDataTemp" Header="New Password" Width="165">
                                 <GridViewColumn.CellTemplate>
 									 <DataTemplate>
 									</DataTemplate>
@@ -288,8 +287,8 @@
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
                                     <GridViewColumn Header="User Account" DisplayMemberBinding ="{Binding 'userAccount'}" Width="115"/>
-                                    <GridViewColumn Header="User Status" DisplayMemberBinding ="{Binding 'userStatus'}" Width="125"/>
                                     <GridViewColumn Header="User DisplayName " DisplayMemberBinding ="{Binding 'userDisplayName'}" Width="130"/>
+                                    <GridViewColumn Header="User Status" DisplayMemberBinding ="{Binding 'userStatus'}" Width="125"/>
 									<GridViewColumn Header="User OU " DisplayMemberBinding ="{Binding 'userOu'}" Width="115"/>
                                     <GridViewColumn Header="User MemberOf " DisplayMemberBinding ="{Binding 'userMemberOf'}" Width="115"/>
 								</GridView>

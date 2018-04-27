@@ -1,47 +1,79 @@
-Function Set-AllCredentials() {
+Function Set-AllCredentials()
+{
     # Set the current database to modify depending on the active tab
-    Switch ($Global:tabControl.SelectedItem.Name) {
-        "tabUser" {
+    Switch ($Global:tabControl.SelectedItem.Name)
+    {
+        "tabUser"
+        {
             $dbCurrent = $Global:dbUser
+
+            # If manual password will be set
+            If ($togglePwRnd.IsChecked -eq $false)
+            {
+                # Take the value from the first passwordbox
+                $password = $pwdBoxNew1.SecurePassword
+            }
+            # If random password will be set
+            else
+            {
+                # Check if for each account a different value will be set
+                If ($togglePwInd.IsChecked -eq $true)
+                {
+                    
+                }
+                else
+                {
+                    
+                }
+            }
         }
-        "tabAdmin" {
+        "tabAdmin"
+        {
 
         }
     }
 
-    foreach ($userObject in $dbCurrent) {
+    foreach ($userObject in $dbCurrent)
+    {
         # Skip empty objects
-        if (!($userObject.domainName)) {
+        if (!($userObject.domainName))
+        {
             continue
         }
         # Skipps loop if the account is in a bad state, pswd has already been set or the account is not checked
-        if ((!($userObject.accountStatus -eq "Healthy" -or $userObject.accountStatus -eq "Verification required")) -or $userObject.IsChecked -eq $false -or ($userObject.pswdVer -eq "")) {
+        if ((!($userObject.accountStatus -eq "Healthy" -or $userObject.accountStatus -eq "Verification required")) -or $userObject.IsChecked -eq $false -or ($userObject.pswdVer -eq ""))
+        {
             Write-Host "Set-Credentials: Skipped "$userObject.samAccount" in "$userObject.domainName
             continue
         }
-        else {
+        else
+        {
             # Test Credentials of current user, creates button depending on outcome and saves the button reference
-            If ((Set-Credentials $global:pswdCurrent $userObject) -eq $true) {
+            If ((Set-Credentials $password $userObject) -eq $true)
+            {
                 $userObject.pswdSetBtnText = "Password set"
                 $userObject.pswdSetBtnEnabled = $false
-                $userObject.pswdVer = $global:pswdCurrent
+                $userObject.pswdNew = $password
 
-                Switch ($Global:tabControl.SelectedItem.Name) {
-                    "tabUser" {
+                Switch ($Global:tabControl.SelectedItem.Name)
+                {
+                    "tabUser"
+                    {
                         #$userObject.pswdSetBtnVisible = "Visible"
                     }
                     "tabAdmin"
                     {}
-                    "tabOffboarding" {
+                    "tabOffboarding"
+                    {
                     }
                 }
             }
-            else {
+            else
+            {
                 $userObject.IsEnabled = $false
                 $userObject.IsChecked = $false
             }
         }
         $Global:userListView.Items.Refresh()
-        $Global:offboardingListView.Items.Refresh()
     }    
 }
