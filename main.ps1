@@ -60,6 +60,18 @@ $Global:offboardingListView = $syncHash.Window.FindName("offboardingListView")
 $syncHash.tabAdmin = $syncHash.Window.FindName("tabAdmin")
 $syncHash.statusBarText = $syncHash.Window.FindName("statusBarText")
 $syncHash.statusBarProgress = $syncHash.Window.FindName("statusBarProgress")
+$syncHash.statusBarBorder = $syncHash.Window.FindName("statusBarBorder")
+# Put statusbar content in the right Z order
+[System.Windows.Controls.Canvas]::SetZIndex($syncHash.statusBarBorder, 1)
+[System.Windows.Controls.Canvas]::SetZIndex($syncHash.statusBarProgress, 2)
+
+# Reset current active tab results
+$btnResetSearch = $syncHash.Window.FindName("btnResetSearch")
+$btnResetSearch.Add_Click(
+    {
+        Reset-App
+    })
+
 $syncHash.userBoxDisable = $syncHash.Window.FindName("userBoxDisable")
 $syncHash.editDB = $false
 $Global:tabControl = $syncHash.Window.FindName("tabControl")
@@ -95,9 +107,13 @@ $searchAccounts = $syncHash.Window.FindName("searchAccounts")
 $searchAccounts.Add_Click(
     {
         Get-AllDomainAccounts
+        $pwdBoxCur.IsEnabled = $true
+        $pwdBoxNew1.IsEnabled = $true
+        $pwdBoxNew2.IsEnabled = $true
+        $togglePwRnd.IsEnabled = $true
     })
 
-$pwdBoxCur = $syncHash.Window.FindName("pwdBoxCur")
+$Global:pwdBoxCur = $syncHash.Window.FindName("pwdBoxCur")
 $pwdBoxCur.Add_PasswordChanged(
     {	
         TextBoxPasswordHandler $_.KeyCode $pwdBoxCur.SecurePassword $pwdVerBtn
@@ -109,9 +125,10 @@ $pwdVerBtn.Add_Click(
         Test-AllCredentials
     })
 
-$pwdBoxNew1 = $syncHash.Window.FindName("pwdBoxNew1")
-$pwdBoxNew2 = $syncHash.Window.FindName("pwdBoxNew2")
-$setNewPswdBtn = $syncHash.Window.FindName("setNewPswdBtn")
+$Global:pwdBoxNew1 = $syncHash.Window.FindName("pwdBoxNew1")
+$Global:pwdBoxNew2 = $syncHash.Window.FindName("pwdBoxNew2")
+$Global:setNewPswdBtn = $syncHash.Window.FindName("setNewPswdBtn")
+$Global:btnCopyToClip = $syncHash.Window.FindName("btnCopyToClip")
 
 $pwdBoxNew1.Add_PasswordChanged(
     {	
@@ -125,11 +142,16 @@ $pwdBoxNew2.Add_PasswordChanged(
 
 $setNewPswdBtn.Add_Click(
     {	
-        Set-AllCredentials
+        Set-AllCredentials $togglePwRnd $togglePwInd
     })
 
-$togglePwRnd = $syncHash.Window.FindName("togglePwRnd")
-$togglePwInd = $syncHash.Window.FindName("togglePwInd")
+$btnCopyToClip.Add_Click(
+    {	
+        Set-RunSpaceContentToClipBoard -password $pwdBoxNew1.SecurePassword -syncHash $syncHash -clearAfterSeconds 5
+    })
+
+$Global:togglePwRnd = $syncHash.Window.FindName("togglePwRnd")
+$Global:togglePwInd = $syncHash.Window.FindName("togglePwInd")
 $togglePwInd.IsEnabled = $false
 
 $togglePwRnd.Add_Click(
@@ -151,18 +173,23 @@ $togglePwRnd.Add_Click(
 ######## Offboarding tab 
 ##########################
 
-$userBoxDisable = $syncHash.Window.FindName("userBoxDisable")
+$Global:userBoxDisable = $syncHash.Window.FindName("userBoxDisable")
 $userBoxDisable.Add_TextChanged( { Set-BtnEnabledByTextLength -current $userBoxDisable.Text.Length -minimum 5 -maximum 7 -button $btnDisable})
-$btnDisable = $syncHash.Window.FindName("btnDisable")
+$Global:btnDisable = $syncHash.Window.FindName("btnDisable")
 $btnDisable.Add_Click( {Get-OffboardingAccounts})
 
-$passwordBoxCurrent = $syncHash.Window.FindName("passwordBoxCurrent")
+$Global:passwordBoxCurrent = $syncHash.Window.FindName("passwordBoxCurrent")
 $passwordBoxCurrent.Add_PasswordChanged( { TextBoxPasswordHandler $_.KeyCode $passwordBoxCurrent.SecurePassword $btnAdminPswd})
-$btnAdminPswd = $syncHash.Window.FindName("btnAdminPswd")
+$Global:btnAdminPswd = $syncHash.Window.FindName("btnAdminPswd")
 
-$userBoxTicket = $syncHash.Window.FindName("userBoxTicket")
-$userBoxTicket.Add_TextChanged( { Set-BtnEnabledByTicketNumber -text $userBoxTicket.Text -button $btnOffboard})
-$btnOffboard = $syncHash.Window.FindName("btnOffboard")
+$Global:userBoxTicket = $syncHash.Window.FindName("userBoxTicket")
+$userBoxTicket.Add_TextChanged( { Set-BtnEnabledByTicketNumber -text $userBoxTicket.Text -button $Global:btnOffboard})
+$Global:btnOffboard = $syncHash.Window.FindName("btnOffboard")
+
+$Global:btnOffboardToClip = $syncHash.Window.FindName("btnOffboardToClip")
+$btnOffboardToClip.Add_Click( {
+        Set-Clipboard -Value $syncHash.offboardingMessage
+    })
 
 $syncHash.offboToggleDisable = $syncHash.Window.FindName("toggleDisable")
 $syncHash.offboToggleRemoveGrps = $syncHash.Window.FindName("toggleRemoveGrps")
@@ -189,6 +216,12 @@ $Global:toggleIsTop = $syncHash.Window.FindName("windowStayTop")
 [System.Windows.RoutedEventHandler]$funcSetCredentials = {
     param ($sender, $e)
     Set-NewPasswordOverlay -dataContext $sender.DataContext
+}
+
+# Create click event for dynamic button -> copy password to clip board
+[System.Windows.RoutedEventHandler]$funcCopyToClipBoard = {
+    param ($sender, $e)
+    Set-RunSpaceContentToClipBoard -password $sender.DataContext.pswdNew -syncHash $syncHash -clearAfterSeconds 5
 }
 
 $Global:btnFlyOut.Add_Click(
@@ -255,6 +288,20 @@ $buttonFactory.SetBinding([System.Windows.Controls.Button]::ContentProperty, $ps
 $buttonFactory.SetBinding([System.Windows.Controls.Button]::VisibilityProperty, $pswdSetBtnVisible)
 $buttonFactory.SetBinding([System.Windows.Controls.Button]::IsEnabledProperty, $pswdSetBtnEnabled)
 $setBtnDataTemp.CellTemplate.VisualTree = $buttonFactory
+
+
+###### Clip board data template
+$dataTempClipBoard = $syncHash.Window.FindName("dataTempClipBoard")
+
+$clipBoardBtnVisible = New-Object System.Windows.Data.Binding
+$clipBoardBtnVisible.path = "clipBoardBtnVisible"
+
+$buttonFactory = New-Object System.Windows.FrameworkElementFactory([System.Windows.Controls.Button])
+$buttonFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, [System.Windows.RoutedEventHandler]$funcCopyToClipBoard)
+$buttonFactory.SetValue([System.Windows.Controls.Button]::ContentProperty, "Copy to clip board")
+# Add bindings
+$buttonFactory.SetBinding([System.Windows.Controls.Button]::VisibilityProperty, $clipBoardBtnVisible)
+$dataTempClipBoard.CellTemplate.VisualTree = $buttonFactory
 
 
 ##############

@@ -8,6 +8,7 @@
     $user = $syncHash.userBoxDisable.Text
     $syncHash.editDB = $false
     $syncHash.userBoxDisable.IsEnabled = $false
+    $Global:btnDisable.IsEnabled = $false
 
     foreach ($domain in $Global:dbOffboarding)
     {

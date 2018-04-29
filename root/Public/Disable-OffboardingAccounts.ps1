@@ -5,12 +5,16 @@ Function Disable-OffboardingAccounts()
     $syncHash.statusBarProgress.Value = 50
     $syncHash.editDB = $false
 
+    $Global:userBoxTicket.IsEnabled = $false
+    $Global:btnOffboard.IsEnabled = $false
+    $syncHash.ticketNumber = $userBoxTicket.Text
+
     foreach ($userObject in $Global:dbOffboarding)
     {
         # Only disable accounts that are checked and the password has been verified
         If ($userObject.isChecked -eq $true -and ($userObject.pswdVer) -and $userObject.userAccount)
         {
-            Set-RunSpaceOffboarding -offboardingListView $Global:offboardingListView -dbOffboarding $Global:dbOffboarding -syncHash $syncHash -adminAccount $userObject.samAccount -pswd $userObject.pswdVer -userAccount $userObject.userAccount -dc $userObject.dc -domainName $userObject.domainName -domainBase $userObject.domainBase -officeDomain $userObject.officeDomain -task disable -userDistName $userObject.userDistName -offboardingResults $userObject.offboardingResults[0]
+            Set-RunSpaceOffboarding -offboardingListView $Global:offboardingListView -dbOffboarding $Global:dbOffboarding -syncHash $syncHash -adminAccount $userObject.samAccount -pswd $userObject.pswdVer -userAccount $userObject.userAccount -dc $userObject.dc -domainName $userObject.domainName -domainBase $userObject.domainBase -officeDomain $userObject.officeDomain -task disable -userDistName $userObject.userDistName -offboardingResults $userObject.offboardingResults[0] -btnOffboardToClip $Global:btnOffboardToClip
         }
         else
         {

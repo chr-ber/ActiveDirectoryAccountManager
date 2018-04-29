@@ -51,20 +51,27 @@
                 }
             }
         }
-
-        Switch ($Global:tabControl.SelectedItem.Name)
+        else
         {
-            "tabUser"
+            Switch ($Global:tabControl.SelectedItem.Name)
             {
-                #Enable set password button
-                $userObject.pswdSetBtnVisible = "Visible"
-            }
-            "tabAdmin"
-            {}
-            "tabOffboarding"
-            {
+                "tabUser"
+                {
+                    #Enable set password button
+                    $userObject.pswdSetBtnVisible = "Visible"
+                }
+                "tabAdmin"
+                {
+
+                }
+                "tabOffboarding"
+                {
+
+                }
             }
         }
+
+
         return $true
     }
     catch

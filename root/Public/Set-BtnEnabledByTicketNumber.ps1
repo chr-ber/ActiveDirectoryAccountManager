@@ -19,5 +19,6 @@ Function Set-BtnEnabledByTicketNumber
     else
     {
         $button.IsEnabled = $true
+        $Global:syncHash.ticketNumber = $text
     }
 }

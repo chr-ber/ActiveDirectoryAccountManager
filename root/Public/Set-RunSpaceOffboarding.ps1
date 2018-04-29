@@ -61,6 +61,10 @@
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         $offboardingResults,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        $btnOffboardToClip,
         
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
@@ -99,9 +103,8 @@
     $Runspace.SessionStateProxy.SetVariable("pswd", $pswd)
     $Runspace.SessionStateProxy.SetVariable("credentials", $credentials)
     $Runspace.SessionStateProxy.SetVariable("userDistName", $userDistName)
-
+    $Runspace.SessionStateProxy.SetVariable("btnOffboardToClip", $btnOffboardToClip)
     $Runspace.SessionStateProxy.SetVariable("offboardingResults", $offboardingResults)
-    
     $Runspace.SessionStateProxy.SetVariable("disableAccount", $syncHash.offboToggleDisable.IsChecked)
     $Runspace.SessionStateProxy.SetVariable("moveToDisabled", $syncHash.offboToggleMoveDis.IsChecked)
     $Runspace.SessionStateProxy.SetVariable("removeGroups", $syncHash.offboToggleRemoveGrps.IsChecked)
@@ -111,29 +114,6 @@
         
         Function Set-OffboardingDatabase ($adminAd, $userAd, $syncHash, $dbOffboarding, $domainBase)
         {
-            <#             [CmdletBinding()]
-            Param(
-                [Parameter(Mandatory = $false)]
-                [ValidateNotNullOrEmpty()]
-                $adminAd,
-
-                [Parameter(Mandatory = $true)]
-                [ValidateNotNullOrEmpty()]
-                $userAd = $true,
-                
-                [Parameter(Mandatory = $true)]
-                [ValidateNotNullOrEmpty()]
-                $syncHash = $true,
-                
-                [Parameter(Mandatory = $true)]
-                [ValidateNotNullOrEmpty()]
-                $dbOffboarding = $true,
-
-                [Parameter(Mandatory = $true)]
-                [ValidateNotNullOrEmpty()]
-                $domainBase = $true
-            ) #>
-            
             # Check if runspace is editing database and sleep until call can take turn
             While ($syncHash.editDB -eq $true)
             {
@@ -361,7 +341,7 @@
                         }                     
                         
                     }
-                }While (($exception -match "Unable to contact the server"  -or $exception -match "invalid enumeration context" ) -and $loopCount -lt $dcCount)
+                }While (($exception -match "Unable to contact the server" -or $exception -match "invalid enumeration context" ) -and $loopCount -lt $dcCount)
             }
 
             # Error handling
@@ -402,7 +382,7 @@
             }
             elseif ($adAccounts -eq $null)
             {
-                $accountStatus = "there were no accounts found in this domain"
+                $accountStatus = "No accounts found"
                 $adAccounts = @([pscustomobject]@{accountStatus = $accountStatus; })
             }
 
@@ -581,6 +561,157 @@
             }
         }
 
+        Function Set-OffboardingMessage
+        {
+            Param(
+                [Parameter(Mandatory = $true)]
+                [ValidateNotNullOrEmpty()]
+                $database,
+
+                [Parameter(Mandatory = $true)]
+                [ValidateNotNullOrEmpty()]
+                $syncHash,
+
+                [Parameter(Mandatory = $true)]
+                [ValidateNotNullOrEmpty()]
+                $ticketNumber
+            )
+    
+            # Convert lower case characters to upper
+            $ticketNumber = $ticketNumber.ToUpper()
+
+            $date = Get-Date -Format "yy-MM-dd hh:MM"
+            $PSEmailServer = "smtp.gtoffice.lan"
+            $mailBody = ""
+            #$mailFrom = "ITOps@greentube.com"
+            #$mailTo = "servicedesk@greentube.com"
+            #$mailCC = "ITOPs@greentube.com"
+            $mailBodyLine = "------------------------------------------------------------------------------`r`n"
+            $mailBodyLineShort = "---------------------------------`r`n"
+
+            $mailFrom = "testthisshit@testing"
+            $mailTo = "christopher_berger@gmx.at"
+            $mailCC = "asdf123qwerty9@mailinator.com"
+    
+            # Sort database to present accounts in same domain beneath each other
+            $database = $database | Sort-Object -Descending -Property domainNAme
+
+            # Get dispaly and account name from administrator
+            foreach ($object in $database)
+            {
+                # Take an entry from a normal acccount only
+                If ($object.userDisplayName -and $object.userAccount -notmatch "a-")
+                {
+                    $userAccount = $object.userAccount
+                    $userDisplayName = $object.userDisplayName
+                    break
+                }
+            }
+
+            # Build mailbody-header
+            $mailBody += "Offboarding script | IT-Operations`r`n"
+            $mailBody += $mailBodyLine
+            $mailBody += "Offboarding date: $date`r`n"
+            $mailBody += "Offboarded user: $userDisplayName`r`n"
+            $mailBody += "Offboarding by: " + $env:USERNAME + "`r`n"
+            $mailBody += "Please note: TESTGT must be disabled manually!`r`n"
+            $mailBody += $mailBodyLine
+
+            $noAccountsHeadline = "The user had no accounts in the following domains:`r`n"
+            $noSearchHeadline = "Admin dediced to NOT search in the following domains:`r`n"
+
+            foreach ($object in $database)
+            {
+                # Skip empty objects
+                if (!($object.domainName))
+                {
+                    continue
+                }
+
+                # If user had no account in domain
+                If ($object.userStatus -eq "No accounts found")
+                {
+                    $noAccounts += "`t- " + $object.domainName + "`r`n"
+                    continue
+                }
+
+                # If admin did not search in domain
+                If ($object.userStatus -eq "")
+                {
+                    $noSearch += "`t" + $object.domainName + "`r`n"
+                    continue
+                }
+
+                $index = $database.IndexOf($object)
+
+                $mailBody += "Domain: " + $object.DomainName + "`r`n"
+                $mailBody += "Display Name: " + $object.userDisplayName + "`r`n" 
+                $mailBody += "SamAccountName: " + $object.userAccount + "`r`n" 
+                $mailBody += $mailBodyLineShort
+
+                if ($database[$index].offboardingResults.disabled -eq $true)
+                {
+                    $mailBody += "`t- Account has been disabled.`r`n"
+        
+                }
+                else
+                {
+                    $mailBody += "`t- Admin chose to NOT disable account.`r`n"
+                }
+        
+                if ($database[$index].offboardingResults.moved -eq $true)
+                {
+                    $mailBody += "`t- Account moved to disabled users.`r`n"
+                }
+                else
+                {
+                    $mailBody += "`t- Admin chose to NOT move account to disabled users.`r`n"            
+                }
+
+                If ($database[$index].offboardingResults.removeGrps -eq $true)
+                {
+                    If ($object.offboardingResults[0].grpsRemoved.Count -ne 0)
+                    {
+                        $mailBody += "`t- Account has been removed from the following groups:`r`n"
+                        foreach ($grp in $object.offboardingResults[0].grpsRemoved)
+                        {
+                            $mailBody += "`t`t$grp`r`n"
+                        }
+                    }
+                    else
+                    {
+                        $mailBody += "`t- Account was not member of any groups.`r`n"
+                    }
+                }
+                else
+                {
+                    $mailBody += "`t- Admin chose to NOT remove any groups`r`n"
+                }
+                $mailBody += $mailBodyLine
+            }
+            # Set no accounts info
+            If ($noAccounts)
+            {
+                $mailBody += $noAccountsHeadline
+                $mailBody += $noAccounts
+                $mailBody += $mailBodyLine
+            }
+            # Set message for domains we did not search in
+            If ($noSearch)
+            {
+                $mailBody += $noSearchHeadline
+                $mailBody += $noSearch
+                $mailBody += $mailBodyLine
+            }
+            
+            $mailsubject = "#$ticketNumber Offboarding - $userDisplayName ($userAccount)"
+
+            Send-MailMessage -From $mailFrom -To $mailTo -Cc $mailCC -Subject $mailSubject -Body $mailBody
+
+            $syncHash.offboardingMessage = $mailBody
+
+        }
+
         # Only one runspace can make calls to a domain, otherwise we recieve the following erros:
         # The server has returned the following error: invalid enumeration context.
 
@@ -623,13 +754,16 @@
         $syncHash.activeRunspaces--
         $syncHash.activeRunSpaceDomains.Remove($domainName)
 
-        # Refresh the gui if the last Runspace has finished
+        # Tasks that will be executed by the last runspace
         If ($syncHash.activeRunspaces -eq 0)
         {
-
             If ($task -eq "disable")
             {
-               
+                Set-OffboardingMessage -database $dbOffboarding -ticketNumber $syncHash.ticketNumber -syncHash $syncHash
+
+                $syncHash.Window.Dispatcher.invoke([action] {
+                        $btnOffboardToClip.IsEnabled = $true
+                    })
             } 
             
             $syncHash.Window.Dispatcher.invoke([action] {

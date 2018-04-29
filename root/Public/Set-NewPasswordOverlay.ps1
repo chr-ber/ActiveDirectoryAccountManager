@@ -30,9 +30,9 @@ Function Set-NewPasswordOverlay
     }
 
     # If valid password has been entered
-    While ((Set-Credentials $dialogManager.SecurePassword $dataContext $false) -eq $false)
+    While ((Set-Credentials -Password $dialogManager.SecurePassword -userObject $dataContext) -eq $false)
     {
-        Set-MessageOverlay -msgHeader "Password was not accepted." -msgText "Either caused by password complexity or history."
+        Set-MessageOverlay -msgHeader "Password was not accepted." -msgText "This is caused by one of the following reasons:`r`n`r`n`tComplexity - A minimum of 8 characters and at least one special or number characters are required`r`n`tHistory - Password has already been used in the past"
         Set-NewPasswordOverlay $dataContext
         return       
     }

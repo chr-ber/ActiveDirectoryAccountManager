@@ -12,6 +12,8 @@
         "tabOffboarding"
         {
             $dbCurrent = $Global:dbOffboarding
+            $Global:passwordBoxCurrent.IsEnabled = $false
+            $Global:btnAdminPswd.IsEnabled = $false
         }
     }
 

@@ -1,5 +1,31 @@
-Function Set-Credentials($pswdNew, $userObject, $whatif)
+Function Set-Credentials
 {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [SecureString]$Password,
+        
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [Boolean]$Random = $false,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        $userObject,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [Boolean]$WhatIf = $false
+    )
+
+    # Check if at least one of the values has been provided
+    If (!($Password) -and !($Random))
+    {
+        Write-Error "Provide either a value for -Password as secure string or set -Random to true."
+        return
+    }
+
     if ($whatif)
     {
         Write-Host "Running WhatIf on Set-Credentials for domain account: " $userObject.samAccount " | domain server: " $userObject.domainName
@@ -19,11 +45,38 @@ Function Set-Credentials($pswdNew, $userObject, $whatif)
 
         $credentials = new-object -typename System.Management.Automation.PSCredential(($userObject.domainBase + "\" + $userObject.samAccount), $userObject.pswdVer)
     
-        Set-AdAccountPassword -Identity $userObject.samAccount -OldPassword $userObject.pswdVer -NewPassword $pswdNew -Server $userObject.dc -Credential $credentials
+        If ($Random -eq $true)
+        {
+            $loopCount = 0
+            do
+            {
+                try
+                {
+                    Write-Host "`t Setting unique random password."
+                    $newPassword = Get-RandomPassword -Minimum 12 -Maximum 20
+                    Set-AdAccountPassword -Identity $userObject.samAccount -OldPassword $userObject.pswdVer -NewPassword $newPassword -Server $userObject.dc -Credential $credentials
+                    $userObject.clipBoardBtnVisible = "Visible";
+                    
+                }
+
+                catch
+                {
+                    $exception = $_.Exception.Message
+                    # Increase node number on domainController
+                    $loopCount++
+                }
+            }While ($exception -match "The password does not meet the length, complexity, or history requirement of the domain" -and $loopCount -le 4)
+        }
+        else
+        {
+            $newPassword = $Password
+            Set-AdAccountPassword -Identity $userObject.samAccount -OldPassword $userObject.pswdVer -NewPassword $newPassword -Server $userObject.dc -Credential $credentials
+        }
+
 
         Write-Host "Change-Password: Successfully changed password for "$userObject.domainBase"\"$userObject.samAccount
 
-        $userObject.pswdNew = $pswdNew
+        $userObject.pswdNew = $newPassword
 
         return $true
     }

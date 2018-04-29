@@ -80,7 +80,7 @@
             # Check if runspace is editing database and sleep until call can take turn
             While ($syncHash.editDB -eq $true)
             {
-                Sleep -Milliseconds (Get-Random -Minimum 50 -Maximum 500)
+                Start-Sleep -Milliseconds (Get-Random -Minimum 50 -Maximum 500)
             }
             # Set flag that this call will now edit the db
             $syncHash.editDB = $true
@@ -142,12 +142,18 @@
                     $dbLink.pswdVerifyBtnVisible = "Visible"
                     $dbLink.IsChecked = $true
                     $dbLink.IsEnabled = $true
+                    If ($dbLink.pswdVer)
+                    {
+                        $dbLink.pswdSetBtnVisible = "Visible"
+                    }
                 }
                 else
                 {
                     $dbLink.pswdVerifyBtnVisible = "Hidden"
+                    $dbLink.pswdSetBtnVisible = "Hidden"                    
                     $dbLink.IsChecked = $false
                     $dbLink.IsEnabled = $false
+
                 }
                 $dbLink.IsVisible = "Visible"
             }
@@ -342,6 +348,7 @@
                     $userListView.Items.Refresh()
                     $syncHash.statusBarProgress.IsIndeterminate = $false
                     $syncHash.statusBarProgress.Value = 0
+                    $syncHash.statusBarText.Text = ""
                 })
         }
     }

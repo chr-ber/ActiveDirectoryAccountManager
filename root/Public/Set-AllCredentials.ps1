@@ -1,5 +1,7 @@
-Function Set-AllCredentials()
+Function Set-AllCredentials($togglePwRnd, $togglePwInd)
 {
+    $uniqueRandom = $false
+
     # Set the current database to modify depending on the active tab
     Switch ($Global:tabControl.SelectedItem.Name)
     {
@@ -19,12 +21,9 @@ Function Set-AllCredentials()
                 # Check if for each account a different value will be set
                 If ($togglePwInd.IsChecked -eq $true)
                 {
-                    
+                    $uniqueRandom = $true
                 }
-                else
-                {
-                    
-                }
+                $password = $Global:syncHash.randomPassword 
             }
         }
         "tabAdmin"
@@ -41,7 +40,7 @@ Function Set-AllCredentials()
             continue
         }
         # Skipps loop if the account is in a bad state, pswd has already been set or the account is not checked
-        if ((!($userObject.accountStatus -eq "Healthy" -or $userObject.accountStatus -eq "Verification required")) -or $userObject.IsChecked -eq $false -or ($userObject.pswdVer -eq ""))
+        if ((!($userObject.accountStatus -eq "Healthy" -or $userObject.accountStatus -eq "Verification required")) -or $userObject.IsChecked -eq $false -or ($userObject.pswdVer -eq "") -or $userObject.pswdNew -ne "")
         {
             Write-Host "Set-Credentials: Skipped "$userObject.samAccount" in "$userObject.domainName
             continue
@@ -49,11 +48,11 @@ Function Set-AllCredentials()
         else
         {
             # Test Credentials of current user, creates button depending on outcome and saves the button reference
-            If ((Set-Credentials $password $userObject) -eq $true)
+            If ((Set-Credentials -Password $password -Random $uniqueRandom -userObject $userObject) -eq $true)
             {
                 $userObject.pswdSetBtnText = "Password set"
                 $userObject.pswdSetBtnEnabled = $false
-                $userObject.pswdNew = $password
+                $Global:btnCopyToClip.IsEnabled = $true
 
                 Switch ($Global:tabControl.SelectedItem.Name)
                 {
