@@ -132,7 +132,7 @@
                                             <DataTemplate></DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn x:Name ="dataTempClipBoard" Width="165">
+                                    <GridViewColumn x:Name="dataTempClipBoard" Width="165">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate></DataTemplate>
                                         </GridViewColumn.CellTemplate>

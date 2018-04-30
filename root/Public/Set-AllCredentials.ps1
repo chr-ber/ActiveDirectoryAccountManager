@@ -48,7 +48,7 @@ Function Set-AllCredentials($togglePwRnd, $togglePwInd)
         else
         {
             # Test Credentials of current user, creates button depending on outcome and saves the button reference
-            If ((Set-Credentials -Password $password -Random $uniqueRandom -userObject $userObject) -eq $true)
+            If ((Set-Credentials -Password $password -Random $uniqueRandom -userObject $userObject -WhatIf $true) -eq $true)
             {
                 $userObject.pswdSetBtnText = "Password set"
                 $userObject.pswdSetBtnEnabled = $false

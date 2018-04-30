@@ -74,6 +74,7 @@ $btnResetSearch.Add_Click(
 
 $syncHash.userBoxDisable = $syncHash.Window.FindName("userBoxDisable")
 $syncHash.editDB = $false
+$syncHash.clipBoardRunspace = 0
 $Global:tabControl = $syncHash.Window.FindName("tabControl")
 $Global:btnFlyOut = $syncHash.Window.FindName("btnFlyOut")
 $syncHash.flyOut = $syncHash.Window.FindName("flyOut")
@@ -188,7 +189,8 @@ $Global:btnOffboard = $syncHash.Window.FindName("btnOffboard")
 
 $Global:btnOffboardToClip = $syncHash.Window.FindName("btnOffboardToClip")
 $btnOffboardToClip.Add_Click( {
-        Set-Clipboard -Value $syncHash.offboardingMessage
+        #Set-Clipboard -Value $syncHash.offboardingMessage
+        $syncHash.offboardingMessage | clip.exe
     })
 
 $syncHash.offboToggleDisable = $syncHash.Window.FindName("toggleDisable")
@@ -221,7 +223,7 @@ $Global:toggleIsTop = $syncHash.Window.FindName("windowStayTop")
 # Create click event for dynamic button -> copy password to clip board
 [System.Windows.RoutedEventHandler]$funcCopyToClipBoard = {
     param ($sender, $e)
-    Set-RunSpaceContentToClipBoard -password $sender.DataContext.pswdNew -syncHash $syncHash -clearAfterSeconds 5
+    Set-RunSpaceContentToClipBoard -password $sender.DataContext.pswdNew -syncHash $syncHash -clearAfterSeconds 5 
 }
 
 $Global:btnFlyOut.Add_Click(
@@ -289,13 +291,10 @@ $buttonFactory.SetBinding([System.Windows.Controls.Button]::VisibilityProperty, 
 $buttonFactory.SetBinding([System.Windows.Controls.Button]::IsEnabledProperty, $pswdSetBtnEnabled)
 $setBtnDataTemp.CellTemplate.VisualTree = $buttonFactory
 
-
 ###### Clip board data template
 $dataTempClipBoard = $syncHash.Window.FindName("dataTempClipBoard")
-
 $clipBoardBtnVisible = New-Object System.Windows.Data.Binding
 $clipBoardBtnVisible.path = "clipBoardBtnVisible"
-
 $buttonFactory = New-Object System.Windows.FrameworkElementFactory([System.Windows.Controls.Button])
 $buttonFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, [System.Windows.RoutedEventHandler]$funcCopyToClipBoard)
 $buttonFactory.SetValue([System.Windows.Controls.Button]::ContentProperty, "Copy to clip board")

@@ -26,11 +26,21 @@ Function Set-Credentials
         return
     }
 
-    if ($whatif)
+    if ($Whatif)
     {
         Write-Host "Running WhatIf on Set-Credentials for domain account: " $userObject.samAccount " | domain server: " $userObject.domainName
+
+        If ($Random -eq $true)
+        {
+            $newPassword = Get-RandomPassword -Minimum 12 -Maximum 20
+            $userObject.pswdNew = $newPassword
+            $userObject.clipBoardBtnVisible = "Visible";
+            return $true            
+        }
+        
         If ((Get-Random -Maximum 10) -gt 4)
         {
+            $userObject.pswdNew = $Password            
             return $true
         }
         else

@@ -9,6 +9,7 @@
     $syncHash.editDB = $false
     $syncHash.userBoxDisable.IsEnabled = $false
     $Global:btnDisable.IsEnabled = $false
+    $taskSet = $false
 
     foreach ($domain in $Global:dbOffboarding)
     {
@@ -16,6 +17,12 @@
         If ($domain.isChecked -eq $true)
         {
             Set-RunSpaceOffboarding -offboardingListView $Global:offboardingListView -dbOffboarding $Global:dbOffboarding -syncHash $syncHash -adminAccount $env:USERNAME -userAccount $user -dc $domain.dc -domainName $domain.domainName -domainBase $domain.domainBase -officeDomain $domain.officeDomain -task search
+            $taskSet = $true
         }
+    }
+    If($taskSet -eq $false)  
+    {
+        $syncHash.statusBarProgress.IsIndeterminate = $false
+        $syncHash.statusBarProgress.Value = 0
     }
 }

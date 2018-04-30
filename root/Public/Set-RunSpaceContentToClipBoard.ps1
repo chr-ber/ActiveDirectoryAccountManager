@@ -17,7 +17,6 @@
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         $content
-
     )
 
     $syncHash.Host = $host
@@ -25,12 +24,21 @@
     $Runspace.ApartmentState = "STA"
     $Runspace.ThreadOptions = "UseNewThread"
     $Runspace.Open()
-
     $Runspace.SessionStateProxy.SetVariable("syncHash", $syncHash) 
     $Runspace.SessionStateProxy.SetVariable("password", $password)    
     $Runspace.SessionStateProxy.SetVariable("clearAfterSeconds", $clearAfterSeconds)    
     $Runspace.SessionStateProxy.SetVariable("content", $content)    
 
+
+    While($syncHash.clipBoardRunspace -gt 0){
+        Start-Sleep -Milliseconds 250
+    }
+    $syncHash.clipBoardRunspace++
+    While($syncHash.clipBoardRunspace -gt 2){
+        Start-Sleep -Milliseconds 500
+        $syncHash.clipBoardRunspace--
+        return
+    }
 
     $code = {
 
@@ -52,12 +60,17 @@
                 $syncHash.statusBarText.Text = "Copied password to clipboard."
             })
 
-        for ($i = 0; $i -le $clearAfterSeconds; $i++)
+        for ($i = 0; $i -le $clearAfterSeconds; $i+= 0.250)
         {
+            # Close runspace if another clipboard runspace has been opened
+            If($syncHash.clipBoardRunspace -gt 1){
+                $syncHash.clipBoardRunspace--
+                return
+            }
             $syncHash.Window.Dispatcher.invoke([action] {
                     $syncHash.statusBarProgress.Value = $i / $clearAfterSeconds * 100
                 })
-            Start-Sleep -Seconds 1
+            Start-Sleep -Milliseconds 250
         }
         [System.Windows.Forms.Clipboard]::Clear()
 
@@ -66,6 +79,7 @@
                 $syncHash.statusBarText.Text = "Cleared clip board."
                 $syncHash.statusBarProgress.Value = 0
             })
+            $syncHash.clipBoardRunspace--
     }
     $PSinstance = [powershell]::Create().AddScript($code)
     $PSinstance.Runspace = $Runspace

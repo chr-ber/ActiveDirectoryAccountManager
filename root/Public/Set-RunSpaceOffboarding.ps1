@@ -177,7 +177,7 @@
                 {
                     $dbLink.userAccount = $user.SamAccountName
                     $dbLink.userDisplayName = $user.displayName
-                    $dbLink.userOu = [regex]::Match($user.DistinguishedName, "CN=[a-zA-Z ]*,[OC][UN]=([- _\d\w]*),").Groups[1].Value
+                    $dbLink.userOu = [regex]::Match($user.DistinguishedName, "CN=[a-zA-Z -_]*,[OC][UN]=([- _\d\w]*),").Groups[1].Value
                     $dbLink.userMemberOf = $user.MemberOf.Count
                     $dbLink.adObject = $user
                     $dbLink.userDistName = $user.DistinguishedName
@@ -583,15 +583,11 @@
             $date = Get-Date -Format "yy-MM-dd hh:MM"
             $PSEmailServer = "smtp.gtoffice.lan"
             $mailBody = ""
-            #$mailFrom = "ITOps@greentube.com"
-            #$mailTo = "servicedesk@greentube.com"
-            #$mailCC = "ITOPs@greentube.com"
+            $mailFrom = "ITOps@greentube.com"
+            $mailTo = "servicedesk@greentube.com"
+            $mailCC = "ITOPs@greentube.com"
             $mailBodyLine = "------------------------------------------------------------------------------`r`n"
             $mailBodyLineShort = "---------------------------------`r`n"
-
-            $mailFrom = "testthisshit@testing"
-            $mailTo = "christopher_berger@gmx.at"
-            $mailCC = "asdf123qwerty9@mailinator.com"
     
             # Sort database to present accounts in same domain beneath each other
             $database = $database | Sort-Object -Descending -Property domainNAme
@@ -611,6 +607,7 @@
             # Build mailbody-header
             $mailBody += "Offboarding script | IT-Operations`r`n"
             $mailBody += $mailBodyLine
+            $mailBody += "Offboarding ticket: $ticketNumber`r`n"
             $mailBody += "Offboarding date: $date`r`n"
             $mailBody += "Offboarded user: $userDisplayName`r`n"
             $mailBody += "Offboarding by: " + $env:USERNAME + "`r`n"
