@@ -6,6 +6,8 @@
         "tabUser"
         {
             $dbCurrent = $Global:dbUser
+            $Global:pwdBoxCur.IsEnabled = $false
+            $Global:pwdVerBtn.IsEnabled = $false 
         }
         "tabAdmin"
         {}

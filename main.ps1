@@ -104,10 +104,11 @@ $btnThemeBlack.Add_Click( {Set-ThemeSkin $this})
 ######## Password Change tab 
 ##########################
 
-$searchAccounts = $syncHash.Window.FindName("searchAccounts")
-$searchAccounts.Add_Click(
+$Global:btnSearchAccounts = $syncHash.Window.FindName("btnSearchAccounts")
+$btnSearchAccounts.Add_Click(
     {
         Get-AllDomainAccounts
+        $btnSearchAccounts.IsEnabled = $false
         $pwdBoxCur.IsEnabled = $true
         $pwdBoxNew1.IsEnabled = $true
         $pwdBoxNew2.IsEnabled = $true
@@ -120,7 +121,15 @@ $pwdBoxCur.Add_PasswordChanged(
         TextBoxPasswordHandler $_.KeyCode $pwdBoxCur.SecurePassword $pwdVerBtn
     })
 
-$pwdVerBtn = $syncHash.Window.FindName("pwdVerBtn")
+$pwdBoxCur.Add_KeyDown( {
+        param ($sender, $e)
+        if ($e.Key -eq 'Return' -or $e.Key -eq 'Enter')
+        {
+            Test-AllCredentials
+        }
+    })
+
+$Global:pwdVerBtn = $syncHash.Window.FindName("pwdVerBtn")
 $pwdVerBtn.Add_Click(
     {	
         Test-AllCredentials
@@ -141,6 +150,22 @@ $pwdBoxNew2.Add_PasswordChanged(
         Set-SetNewPasswordButton -password1 $pwdBoxNew1.SecurePassword -password2 $pwdBoxNew2.SecurePassword -button $setNewPswdBtn        
     })
 
+$pwdBoxNew1.Add_KeyDown( {	
+        param ($sender, $e)
+        if ($setNewPswdBtn.IsEnabled -eq $true -and ($e.Key -eq 'Return' -or $e.Key -eq 'Enter'))
+        {
+            Set-AllCredentials $togglePwRnd $togglePwInd
+        }
+    })
+
+$pwdBoxNew2.Add_KeyDown( {	
+        param ($sender, $e)
+        if ($setNewPswdBtn.IsEnabled -eq $true -and ($e.Key -eq 'Return' -or $e.Key -eq 'Enter'))
+        {
+            Set-AllCredentials $togglePwRnd $togglePwInd
+        }
+    })
+
 $setNewPswdBtn.Add_Click(
     {	
         Set-AllCredentials $togglePwRnd $togglePwInd
@@ -148,7 +173,7 @@ $setNewPswdBtn.Add_Click(
 
 $btnCopyToClip.Add_Click(
     {	
-        Set-RunSpaceContentToClipBoard -password $pwdBoxNew1.SecurePassword -syncHash $syncHash -clearAfterSeconds 5
+        Set-RunSpaceContentToClipBoard -password $Global:pwdBoxNew1.SecurePassword -syncHash $syncHash -clearAfterSeconds 5 -random $Global:togglePwRnd.IsChecked
     })
 
 $Global:togglePwRnd = $syncHash.Window.FindName("togglePwRnd")
@@ -210,19 +235,19 @@ $Global:toggleIsTop = $syncHash.Window.FindName("windowStayTop")
 
 # Create click event for dynamic button -> set current password
 [System.Windows.RoutedEventHandler]$funcTestCredentials = {
-    param ($sender, $e)
+    param ($sender)
     Set-PasswordOverlay -dataContext $sender.DataContext
 }
 
 # Create click event for dynamic button -> set new password
 [System.Windows.RoutedEventHandler]$funcSetCredentials = {
-    param ($sender, $e)
+    param ($sender)
     Set-NewPasswordOverlay -dataContext $sender.DataContext
 }
 
 # Create click event for dynamic button -> copy password to clip board
 [System.Windows.RoutedEventHandler]$funcCopyToClipBoard = {
-    param ($sender, $e)
+    param ($sender)
     Set-RunSpaceContentToClipBoard -password $sender.DataContext.pswdNew -syncHash $syncHash -clearAfterSeconds 5 
 }
 

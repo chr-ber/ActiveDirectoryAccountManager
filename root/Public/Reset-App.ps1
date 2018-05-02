@@ -12,20 +12,24 @@
 
     )
 
+    Remove-Variable -Name dbUser -Force -Scope Global
+    Remove-Variable -Name dbOffboarding -Force -Scope Global
+
     # Empty the user databases
     $Global:dbUser = @()
     $Global:dbAdmin = @()    
     $Global:dbOffboarding = @()   
 
     # Password tab defaults
+    $Global:btnSearchAccounts.IsEnabled = $true
     $Global:syncHash.editDB = $false
     $Global:togglePwRnd.IsEnabled = $false
     $Global:togglePwInd.IsEnabled = $false
     $Global:setNewPswdBtn.IsEnabled = $false
     $Global:pwdBoxCur.IsEnabled = $false
     $Global:pwdBoxNew1.IsEnabled = $false
-    $Global:togglePwRnd.IsChecked = $false
     $Global:pwdBoxNew2.IsEnabled = $false
+    $Global:togglePwRnd.IsChecked = $false
     $Global:pwdBoxCur.Password = ""
     $Global:pwdBoxNew1.Password = ""
     $Global:pwdBoxNew2.Password = ""
@@ -54,12 +58,12 @@
         {
             if ($i -eq 1)
             {
-                $Global:dbUser += @([pscustomobject]@{IsEnabled = "true"; IsChecked = "true"; domainName = $domain.domainName; samAccount = ""; displayName = ""; accountStatus = ""; pswdVer = ""; pswdVerifyBtnText = "Set current password"; pswdVerifyBtnVisible = "Hidden"; pswdVerifyBtnEnabled = $true; pswdSetBtnText = "Set new password"; pswdSetBtnVisible = "Hidden"; pswdSetBtnEnabled = $true; clipBoardBtnVisible = "Hidden"; pswdNew = ""; dc = $domain.dc; domainBase = $domain.domainBase; officeDomain = $domain.officeDomain; adObject = ""})
+                $Global:dbUser += @([pscustomobject]@{IsEnabled = "true"; IsChecked = "true"; domainName = $domain.domainName; samAccount = ""; displayName = ""; expiresIn = ""; accountStatus = ""; pswdVer = ""; pswdVerifyBtnText = "Set current password"; pswdVerifyBtnVisible = "Hidden"; pswdVerifyBtnEnabled = $true; pswdSetBtnText = "Set new password"; pswdSetBtnVisible = "Hidden"; pswdSetBtnEnabled = $true; clipBoardBtnVisible = "Hidden"; pswdNew = ""; dc = $domain.dc; domainBase = $domain.domainBase; officeDomain = $domain.officeDomain; adObject = ""})
 
             }
             else
             {
-                $Global:dbUser += @([pscustomobject]@{IsVisible = "Hidden"; IsEnabled = ""; IsChecked = ""; domainName = ""; samAccount = ""; displayName = ""; accountStatus = ""; pswdVer = ""; pswdVerifyBtnText = "Set current password"; pswdVerifyBtnVisible = "Hidden"; pswdVerifyBtnEnabled = $true; pswdSetBtnText = "Set new password"; pswdSetBtnVisible = "Hidden"; pswdSetBtnEnabled = $true; clipBoardBtnVisible = "Hidden"; pswdNew = ""; dc = ""; domainBase = ""; officeDomain = ""; adObject = ""})
+                $Global:dbUser += @([pscustomobject]@{IsVisible = "Hidden"; IsEnabled = ""; IsChecked = ""; domainName = ""; samAccount = ""; displayName = ""; expiresIn = ""; accountStatus = ""; pswdVer = ""; pswdVerifyBtnText = "Set current password"; pswdVerifyBtnVisible = "Hidden"; pswdVerifyBtnEnabled = $true; pswdSetBtnText = "Set new password"; pswdSetBtnVisible = "Hidden"; pswdSetBtnEnabled = $true; clipBoardBtnVisible = "Hidden"; pswdNew = ""; dc = ""; domainBase = ""; officeDomain = ""; adObject = ""})
             }
         }
     }

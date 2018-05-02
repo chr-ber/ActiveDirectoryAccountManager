@@ -8,7 +8,11 @@ Function Set-AllCredentials($togglePwRnd, $togglePwInd)
         "tabUser"
         {
             $dbCurrent = $Global:dbUser
-
+            $Global:setNewPswdBtn.IsEnabled = $false
+            $Global:pwdBoxNew1.IsEnabled = $false
+            $Global:pwdBoxNew2.IsEnabled = $false
+            $Global:togglePwRnd.IsEnabled = $false
+            
             # If manual password will be set
             If ($togglePwRnd.IsChecked -eq $false)
             {

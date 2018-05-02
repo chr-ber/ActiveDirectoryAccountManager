@@ -12,6 +12,10 @@
 
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
+        [boolean]$random,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
         $clearAfterSeconds,
 
         [Parameter(Mandatory = $false)]
@@ -25,16 +29,27 @@
     $Runspace.ThreadOptions = "UseNewThread"
     $Runspace.Open()
     $Runspace.SessionStateProxy.SetVariable("syncHash", $syncHash) 
-    $Runspace.SessionStateProxy.SetVariable("password", $password)    
     $Runspace.SessionStateProxy.SetVariable("clearAfterSeconds", $clearAfterSeconds)    
-    $Runspace.SessionStateProxy.SetVariable("content", $content)    
+    $Runspace.SessionStateProxy.SetVariable("content", $content)
+
+    If ($random -eq $true)
+    {
+        $Runspace.SessionStateProxy.SetVariable("password", $syncHash.randomPassword)    
+    }
+    else
+    {
+        $Runspace.SessionStateProxy.SetVariable("password", $password)    
+    }
+    
 
 
-    While($syncHash.clipBoardRunspace -gt 0){
+    While ($syncHash.clipBoardRunspace -gt 0)
+    {
         Start-Sleep -Milliseconds 250
     }
     $syncHash.clipBoardRunspace++
-    While($syncHash.clipBoardRunspace -gt 2){
+    While ($syncHash.clipBoardRunspace -gt 2)
+    {
         Start-Sleep -Milliseconds 500
         $syncHash.clipBoardRunspace--
         return
@@ -60,10 +75,11 @@
                 $syncHash.statusBarText.Text = "Copied password to clipboard."
             })
 
-        for ($i = 0; $i -le $clearAfterSeconds; $i+= 0.250)
+        for ($i = 0; $i -le $clearAfterSeconds; $i += 0.250)
         {
             # Close runspace if another clipboard runspace has been opened
-            If($syncHash.clipBoardRunspace -gt 1){
+            If ($syncHash.clipBoardRunspace -gt 1)
+            {
                 $syncHash.clipBoardRunspace--
                 return
             }
@@ -76,10 +92,10 @@
 
         #Refresh the gui if the last Runspace has finished
         $syncHash.Window.Dispatcher.invoke([action] {
-                $syncHash.statusBarText.Text = "Cleared clip board."
+                $syncHash.statusBarText.Text = "Cleared clipboard."
                 $syncHash.statusBarProgress.Value = 0
             })
-            $syncHash.clipBoardRunspace--
+        $syncHash.clipBoardRunspace--
     }
     $PSinstance = [powershell]::Create().AddScript($code)
     $PSinstance.Runspace = $Runspace

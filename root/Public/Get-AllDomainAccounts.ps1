@@ -1,7 +1,5 @@
 ﻿Function Get-AllDomainAccounts()
 {
-    $jobCount = 0
-    $Script:usersLoaded = @()
     $syncHash.statusBarText.Text = "Searching domain accounts."
     $syncHash.statusBarProgress.IsIndeterminate = $true
     $syncHash.statusBarProgress.Value = 50

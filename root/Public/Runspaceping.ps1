@@ -71,7 +71,9 @@
     $Runspace.SessionStateProxy.SetVariable("pswd", $pswd)
     $Runspace.SessionStateProxy.SetVariable("predictAccounts", $true)
     $Runspace.SessionStateProxy.SetVariable("credentials", $credentials)
-    $Runspace.SessionStateProxy.SetVariable("pswdHistory", $pswdHistory)    
+    $Runspace.SessionStateProxy.SetVariable("pswdHistory", $pswdHistory)
+    $Runspace.SessionStateProxy.SetVariable("Runspace", $Runspace) 
+
 
     $code = {
 
@@ -135,6 +137,11 @@
                     $dbLink.adObject = $user
                     $dbLink.samAccount = $user.SamAccountName
                     $dbLink.displayName = $user.displayName
+                    $daysLeft = [math]::Round((90 - ((Get-Date).Ticks - $user.PasswordLastSet).TotalDays), 0)
+                    If ($daysLeft -gt 0 -and $user.PasswordExpired -eq $false)
+                    {
+                        $dbLink.expiresIn = $daysLeft
+                    }
                 }
 
                 If ($user.healthy -eq $true)
@@ -351,10 +358,13 @@
                     $syncHash.statusBarText.Text = ""
                 })
         }
+
+        $Runspace.EndInvoke($Runspace)
+        $Runspace.Dispose()
     }
 
     $PSinstance = [powershell]::Create().AddScript($Code)
     $PSinstance.Runspace = $Runspace
-    $job = $PSinstance.BeginInvoke()
+    $PSinstance.BeginInvoke()
 
 }
