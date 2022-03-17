@@ -27,6 +27,7 @@ This desktop application was created to allow IT engineers to quickly and effect
 ## Technologies
 
 * [PowerShell](https://docs.microsoft.com/en-us/PowerShell/)
+* [Windows Forms](https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms)
 * [XAML](https://docs.microsoft.com/en-us/visualstudio/xaml-tools/xaml-overview)
 * [MahApps](https://mahapps.com/)
 
@@ -60,6 +61,8 @@ User based settings are stored under `%appdata%\ActiveDirectoryAccountManager_cb
 
 This file is generated on the first close of the application and stores choices made in the settings flyout and various fields of the application window.
 
+![Settings Image](https://raw.githubusercontent.com/ChrisLeeBearger/ActiveDirectoryAccountManager/master/doc/app_image_02_settings.png)
+
 |Column| Description | Default |
 | ------------- | ------------- | ------------- | 
 | Height  | Window height in pixels | 600 |
@@ -70,5 +73,3 @@ This file is generated on the first close of the application and stores choices 
 | ThemeAccent  | Accent color of the theme  | Cobalt |
 | WindowStayTop  | If true, window will position itself on top of other windows, even if focus is lost  | true |
 | WindowState  | Specifies whether a window is minimized, maximized, or restored. [WindowState Enum](https://docs.microsoft.com/en-us/dotnet/api/system.windows.windowstate)  | Normal |
-
-![Settings Image](https://raw.githubusercontent.com/ChrisLeeBearger/ActiveDirectoryAccountManager/master/doc/app_image_02_settings.png)
