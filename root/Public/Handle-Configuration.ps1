@@ -12,7 +12,7 @@
     $Global:rootConfig = @()
 
     ################# Window configuration file
-    $userConfigFolder = "adam"
+    $userConfigFolder = "ActiveDirectoryAccountManager_cberg"
     $userConfigPath = "$env:APPDATA\$userConfigFolder"
     $userConfigFile = "$userConfigPath\userConfig.csv"
 
@@ -46,10 +46,11 @@
             # Set defaults
             $syncHash.Window.Height = 600
             $syncHash.Window.WindowState = "Normal"
-            $syncHash.Window.Width = 1400
-            $syncHash.ThemeSkin = "BaseLight"
+            $syncHash.Window.Width = 800
+            $syncHash.ThemeSkin = "BaseDark"
             $syncHash.ThemeAccent = "Cobalt"
-            $syncHash.Window.Top = $true
+            $syncHash.Window.Top = 0
+            $syncHash.Window.Left = 0
             $toggleIsTop.IsChecked = $true
         }
     }
