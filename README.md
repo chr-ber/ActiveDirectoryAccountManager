@@ -4,6 +4,17 @@ This desktop application was created to allow IT engineers to quickly and effect
 
 ![Application Image](https://raw.githubusercontent.com/ChrisLeeBearger/ActiveDirectoryAccountManager/master/doc/app_image_01.png)
 
+## Features
+
+* Change all your Active Directory user passwords in one place
+* Set one password for all your accounts (obviously less secure and might conflict with your companies password policy)
+* Set a different password for each of your accounts
+* Set one or multiple random passwords at once
+* Global configuration for domains (once setup for all users)
+* User based settings for
+  * Color theme
+  * Window stay on top
+
 ## How it Works
 
 * Searches user accounts in all configured domains based on the [sAMAccountName](https://docs.microsoft.com/en-us/windows/win32/ad/naming-properties#samaccountname) of the user currently running the app. This means that relevant user accounts are only found in case there is a naming convention applied to the sAMAccountName across all domains. (e.g.  DOMAIN1\\**jdoe**, DOMAIN2\\**jdoe**, DOMAIN3\\**jdoe**,...)
@@ -33,7 +44,7 @@ This desktop application was created to allow IT engineers to quickly and effect
 
 ## Configuration Files
 
-### Global Configuration File
+### Global Configuration
 
 The domains need to be configured in the [config.csv](https://github.com/ChrisLeeBearger/ActiveDirectoryAccountManager/blob/master/config.csv) file located in the root folder of the app. It will apply to all users, if each user has a different set of domains its required to have multiple installations of the this repository.
 
@@ -47,16 +58,17 @@ The domains need to be configured in the [config.csv](https://github.com/ChrisLe
 
 User based settings are stored under `%appdata%\ActiveDirectoryAccountManager_cberg\userConfig.csv`.
 
-This file is generated on the first close of the application and stores choices made in the settings flyout.
+This file is generated on the first close of the application and stores choices made in the settings flyout and various fields of the application window.
+
+|Column| Description | Default |
+| ------------- | ------------- | ------------- | 
+| Height  | Window height in pixels | 600 |
+| Width  | Window width in pixels | 1200 |
+| Top  | Pixel offset from top  | 0 |
+| Left  | Pixel offset from left  | 0 |
+| ThemeSkin  | Stores selction between dark and light base theme | BaseDark |
+| ThemeAccent  | Accent color of the theme  | Cobalt |
+| WindowStayTop  | If true, window will position itself on top of other windows, even if focus is lost  | true |
+| WindowState  | Specifies whether a window is minimized, maximized, or restored. [WindowState Enum](https://docs.microsoft.com/en-us/dotnet/api/system.windows.windowstate)  | Normal |
 
 ![Settings Image](https://raw.githubusercontent.com/ChrisLeeBearger/ActiveDirectoryAccountManager/master/doc/app_image_02_settings.png)
-
-## Features
-
-* Change all your Active Directory user passwords in one place
-* Set one password for all your accounts (obviously less secure and might conflict with your companies password policy)
-* Set a different password for each of your accounts
-* Global configuration for domains
-* User based settings for
-  * Color theme
-  * Window stay on top
