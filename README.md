@@ -59,5 +59,4 @@ This file is generated on the first close of the application and stores choices 
 * Global configuration for domains
 * User based settings for
   * Color theme
-  * Windows stay on top
-
+  * Window stay on top
