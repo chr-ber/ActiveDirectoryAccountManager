@@ -2,7 +2,16 @@
 
 This desktop application was created to allow IT engineers to quickly and effectively change all their Active Directory passwords across multiple domains.
 
+It is written completley in PowerShell but utilizing .NET Framework classes and assemblies.
+
 ![Application Image](https://raw.githubusercontent.com/ChrisLeeBearger/ActiveDirectoryAccountManager/master/doc/app_image_01.png)
+
+## Technologies
+
+* [PowerShell](https://docs.microsoft.com/en-us/PowerShell/)
+* [Windows Forms](https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms)
+* [XAML](https://docs.microsoft.com/en-us/visualstudio/xaml-tools/xaml-overview)
+* [MahApps](https://mahapps.com/)
 
 ## Features
 
@@ -23,13 +32,6 @@ This desktop application was created to allow IT engineers to quickly and effect
 * The initial search is performed with the currently logged in user, only if there is a domain trust setup user accounts within other domains are found immediately. If this is not in place the search will be performed again with domain local credentials as soon as a password has been provided
 * The password change will be performed with the provided credentials entered in one of the "Current Password" fields. There is no super user required for the app to work
 * All credentials are held in memory as [SecureString](https://docs.microsoft.com/en-us/dotnet/api/system.security.securestring)
-
-## Technologies
-
-* [PowerShell](https://docs.microsoft.com/en-us/PowerShell/)
-* [Windows Forms](https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms)
-* [XAML](https://docs.microsoft.com/en-us/visualstudio/xaml-tools/xaml-overview)
-* [MahApps](https://mahapps.com/)
 
 ## Requirements
 * [PowerShell](https://docs.microsoft.com/en-us/PowerShell/) 5.0 or later
