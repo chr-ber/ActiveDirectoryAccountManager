@@ -50,7 +50,7 @@ It is written completley in PowerShell but utilizing .NET Framework classes and 
 
 ### Global Configuration
 
-The domains need to be configured in the [config.csv](https://github.com/ChrisLeeBearger/ActiveDirectoryAccountManager/blob/master/config.csv) file located in the root folder of the app. It will apply to all users, if each user has a different set of domains its required to have multiple installations of the this repository.
+The domains need to be configured in the [config.csv](https://github.com/ChrisLeeBearger/ActiveDirectoryAccountManager/blob/master/config.csv) file located in the root folder of the app. This configuration will apply to all users starting the app, if each user must have a different set of domains its required to have multiple installations of this repository.
 
 |Column| Description | Example |
 | ------------- | ------------- | ------------- | 
