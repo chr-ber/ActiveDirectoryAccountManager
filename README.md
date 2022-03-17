@@ -1,21 +1,31 @@
 # ActiveDirectoryAccountManager
 
-This application was created to allow IT engineers to quickly and effectivly change all their Active Directory passwords accross multiple domains.
+This client application was created to allow IT engineers to quickly and effectivly change all their Active Directory passwords accross multiple domains.
 
 ## Technologies
 
-* [MahApps](https://mahapps.com/)
-* [XAML](https://docs.microsoft.com/en-us/visualstudio/xaml-tools/xaml-overview?view=vs-2022#:~:text=Extensible%20Application%20Markup%20Language%20(XAML,Universal%20Windows%20Platform%20(UWP)%20apps)
 * [Powershell](https://docs.microsoft.com/en-us/powershell/)
+* [XAML](https://docs.microsoft.com/en-us/visualstudio/xaml-tools/xaml-overview)
+* [MahApps](https://mahapps.com/)
+
+## How it Works
+1. Install the latest
+
+## Requirements
+* Powershell 5.0 or later
+* [Remote Server Administration Tools](https://docs.microsoft.com/en-us/windows-server/remote/remote-server-administration-tools)
+* Port 9389 for [Active Directory Web Services](https://docs.microsoft.com/en-us/troubleshoot/windows-server/networking/service-overview-and-network-port-requirements#system-services-ports) from the client to all domain controllers
 
 ## Getting Started
+1. Clone the repository and open the [config.csv](https://github.com/ChrisLeeBearger/ActiveDirectoryAccountManager/blob/master/config.csv) file.
+2. Remove all of the example domains from the file.
+3. Add the domains that should be searched for accounts.
+4. If you ensured all the requirements are in place you are done, use adam.exe to start the app.
 
-Clone the repository and add your domain relevant information in the [config.csv](https://github.com/ChrisLeeBearger/ActiveDirectoryAccountManager/blob/master/config.csv) file.
+## Configuration File
 
-Make sure to remove all of the example domains.
-
-|Column| Function |
-| ------------- | ------------- |
-| DomainName  | The display name  |
-| DomainController  | Hostname of the domain controller that will be used to change the password |
-| DomainBase  | The full qualified domain name  |
+|Column| Description | Example |
+| ------------- | ------------- | ------------- | 
+| DomainName  | The name that is going to be displayed | Contoso |
+| DomainController  | Hostname of the domain controller that will be used to change the password | contoso-dc1 |
+| DomainBase  | The full qualified domain name  | contoso.lan |
