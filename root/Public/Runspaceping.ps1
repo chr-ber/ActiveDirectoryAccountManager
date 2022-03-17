@@ -24,10 +24,6 @@
 
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        $officeDomain = $true,
-
-        [Parameter(Mandatory = $false)]
-        [ValidateNotNullOrEmpty()]
         $returnAdmin = $false,
 
         [Parameter(Mandatory = $false)]
@@ -48,7 +44,7 @@
 
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        $credentials,
+        [SecureString]$credentials,
     
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
@@ -190,8 +186,8 @@
                 "5" {$adAccounts = @([pscustomobject]@{SamAccountName = "cberg"; Enabled = $true; LockedOut = $false; PasswordLastSet = ((Get-Date).AddDays(-10)); DisplayName = "Christopher Berger"; PasswordExpired = $false}),
                     ([pscustomobject]@{SamAccountName = "a-cberg"; Enabled = $true; LockedOut = $false; PasswordLastSet = ((Get-Date).AddDays(-10)); DisplayName = "a-cberg"; PasswordExpired = $false})
                 }
-                "6" {$exception = "The Server has rejected the client credentials."; $officeDomain = $true; $normalAccount = "cberg"; $adminAccount = "a-cberg"}
-                "7" {$exception = "The Server has rejected the client credentials."; $officeDomain = $false; $normalAccount = "cberg"; $adminAccount = "a-cberg"}
+                "6" {$exception = "The Server has rejected the client credentials."; $normalAccount = "cberg"; $adminAccount = "a-cberg"}
+                "7" {$exception = "The Server has rejected the client credentials."; $normalAccount = "cberg"; $adminAccount = "a-cberg"}
                 "8" {$adAccounts = @([pscustomobject]@{SamAccountName = "cberg"; Enabled = $true; LockedOut = $false; PasswordLastSet = ((Get-Date)); DisplayName = "Christopher Berger"; PasswordExpired = $false}),
                     ([pscustomobject]@{SamAccountName = "a-cberg"; Enabled = $true; LockedOut = $false; PasswordLastSet = ((Get-Date).AddDays(-10)); DisplayName = "a-cberg"; PasswordExpired = $false})
                 }
@@ -248,7 +244,7 @@
         }
 
         # Error handling
-        If ($exception -ne $null)
+        If ($null -ne $exception)
         {
             # Predict account names, will be tested with real credentials
             If ($exception -match "The Server has rejected the client credentials." -or $exception -match "A call to SSPI failed, see inner exception.")
@@ -256,13 +252,7 @@
                 If ($predictAccounts -eq $true)
                 {
                     $adAccounts = @([pscustomobject]@{samAccountName = $normalAccount; })           
-                    # Predict 2nd account if it is an office domain
-                    if ($officeDomain -eq "true")
-                    {
-                        $adAccounts += @([pscustomobject]@{samAccountName = $adminAccount; })
-                    } 
                 }
-
                 $accountStatus = "Verification required"     
             }
             # If we tried to contact all domain controllers without success
@@ -279,22 +269,21 @@
         }
 
         # If no account was found
-        if ($adAccounts -eq $null -and ($exception))
+        if ($null -eq $adAccounts -and ($exception))
         {
             $adAccounts = @([pscustomobject]@{accountStatus = $accountStatus; })
         }
-        elseif ($adAccounts -eq $null)
+        elseif ($null -eq $adAccounts)
         {
             $accountStatus = "there were no accounts found in this domain"
             $adAccounts = @([pscustomobject]@{accountStatus = $accountStatus; })
         }
 
-
         # Set account status for each user
         foreach ($adAccount in $adAccounts)
         {
             # If password field is not existing accounts were not found
-            If ($adAccount.PasswordLastSet -ne $null)
+            If ($null -ne $adAccount.PasswordLastSet)
             {
                 # Check when password has been set to recent
                 $pswdChangeTime = ((Get-Date).Ticks - $adAccount.PasswordLastSet).TotalHours
@@ -340,11 +329,10 @@
         If ($returnAdmin -eq $true -and $adAccounts.Count -gt 1)
         {
             $adAccounts = $adAccounts| ? {$_.SamAccountName -eq $adminAccount}
-        }  
-        #return $adAccounts
+        } 
+
         Set-CurrentUserDatabase $adAccounts $syncHash $userListView $dbUser
         $syncHash.activeRunspaces--
-        #Set-CurrentUserDatabase $adAccounts
         Set-ProgressBar
 
         If ($syncHash.activeRunspaces -eq 0)

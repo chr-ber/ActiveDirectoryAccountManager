@@ -26,7 +26,6 @@ Function Get-RandomPassword
             $Length = Get-Random -Minimum $Minimum -Maximum $Maximum
         }
     }
-        
 
     # Create string that holds all possible characters
     $pswdChars = (([char[]]([char]33..[char]95) + ([char[]]([char]97..[char]126))) + 0..9 | Where-Object {$_ -notlike '&'} | Sort-Object {Get-Random})

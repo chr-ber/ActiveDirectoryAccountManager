@@ -8,7 +8,7 @@
     # Build root configuration from config file
     foreach ($line in $config)
     {
-        $Global:rootConfig += @([pscustomobject]@{domainName=$line.DomainName;dc=($line.DomainController + "." + $line.DomainBase);domainBase=$line.DomainBase;officeDomain=$line.OfficeDomain;})
+        $Global:rootConfig += @([pscustomobject]@{domainName=$line.DomainName;dc=($line.DomainController + "." + $line.DomainBase);domainBase=$line.DomainBase;})
     }
 
     # Load configuration if file exists

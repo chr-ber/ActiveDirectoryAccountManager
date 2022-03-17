@@ -1,12 +1,10 @@
-﻿Function Handle-Configuration
-{
+﻿Function Handle-Configuration {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         $Option
     )
-    
 
     ###### Domain configuration file
     $configFile = "$Global:scriptLocation\config.csv"
@@ -18,19 +16,15 @@
     $userConfigPath = "$env:APPDATA\$userConfigFolder"
     $userConfigFile = "$userConfigPath\userConfig.csv"
 
-
-    If ($Option -eq "load")
-    {
+    If ($Option -eq "load") {
 
         # Build root configuration from config file
-        foreach ($line in $config)
-        {
-            $Global:rootConfig += @([pscustomobject]@{domainName = $line.DomainName; dc = ($line.DomainController + "." + $line.DomainBase); domainBase = $line.DomainBase; officeDomain = $line.OfficeDomain; })
+        foreach ($line in $config) {
+            $Global:rootConfig += @([pscustomobject]@{domainName = $line.DomainName; dc = ($line.DomainController + "." + $line.DomainBase); domainBase = $line.DomainBase;})
         }
 
         # Load configuration if file exists
-        If ((test-path -Path $userConfigFile))
-        {
+        If ((test-path -Path $userConfigFile)) {
             $userConfig = Import-Csv -Delimiter ";" -Path "$userConfigPath\userConfig.csv"
             $syncHash.Window.Height = $userConfig.Height
             $syncHash.Window.Width = $userConfig.Width
@@ -48,8 +42,7 @@
             $toggleIsTop.IsChecked = $syncHash.Window.Topmost
 
         }
-        else
-        {      
+        else {      
             # Set defaults
             $syncHash.Window.Height = 600
             $syncHash.Window.WindowState = "Normal"
@@ -59,29 +52,24 @@
             $syncHash.Window.Top = $true
             $toggleIsTop.IsChecked = $true
         }
-
- 
     }
 
-    If ($Option -eq "save")
-    {
+    If ($Option -eq "save") {
         # Safe window settings
         $userConfig = @([pscustomobject]@{"Height" = $syncHash.Window.ActualHeight;      
-                "Width" = $syncHash.Window.ActualWidth;
-                "Top" = $syncHash.Window.Top;      
-                "Left" = $syncHash.Window.Left;
-                "ThemeSkin" = $syncHash.ThemeSkin;
-                "ThemeAccent" = $syncHash.ThemeAccent;
-                "WindowStayTop" = $toggleIsTop.IsChecked;
-                "WindowState" = $syncHash.Window.WindowState
+                "Width"                            = $syncHash.Window.ActualWidth;
+                "Top"                              = $syncHash.Window.Top;      
+                "Left"                             = $syncHash.Window.Left;
+                "ThemeSkin"                        = $syncHash.ThemeSkin;
+                "ThemeAccent"                      = $syncHash.ThemeAccent;
+                "WindowStayTop"                    = $toggleIsTop.IsChecked;
+                "WindowState"                      = $syncHash.Window.WindowState
             })
         # Create folder
-        If (!(Test-path -path $userConfigPath))
-        {
+        If (!(Test-path -path $userConfigPath)) {
             New-Item -ItemType directory -Path $userConfigPath
         }
 
-        $userConfig| ConvertTo-Csv -NoTypeInformation -Delimiter ";" | out-file $userConfigFile
+        $userConfig | ConvertTo-Csv -NoTypeInformation -Delimiter ";" | out-file $userConfigFile
     }
-
 }

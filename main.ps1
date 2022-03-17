@@ -1,35 +1,23 @@
-﻿Clear-Host
-# Set manual script location if running in powershell ISE
-If (!$PSScriptRoot -or $PSScriptRoot -eq "")
-{
+﻿# Set manual script location if running in powershell ISE
+If ([string]::IsNullOrEmpty($PSScriptRoot)) {
     # Replace the location with your location of the root folder
-    # If office notebook
-    If ($env:COMPUTERNAME -eq "NB0179")
-    {
-        $Global:scriptLocation = "C:\PowerShell\UCPM"
-    }
-    # If at home
-    else
-    {
-        $Global:scriptLocation = "C:\PowerShell\UCPM"
-    }
+    $Global:scriptLocation = (Get-Item .).FullName
 }
-else
-{
+else {
     $Global:scriptLocation = $PSScriptRoot
 }
 
 #######################################
 ######## Load all functions and assemblies
 ##########################
-
 Import-Module "$Global:scriptLocation\root" -Verbose -Force
 Set-Assemblies
+
+[System.Reflection.Assembly]::LoadFrom("assembly\MahApps.Metro.dll")
 
 #######################################
 ######## Variables
 ##########################
-
 # Objects that hold user information for each tabItem
 $Global:dbUser = @()
 $Global:dbAdmin = @()
@@ -44,11 +32,11 @@ $Global:dbOffboarding = @()
 $Global:syncHash = [hashtable]::Synchronized(@{})
 $Global:syncHash.activeRunspaces = 0
 [System.Collections.ArrayList]$Global:syncHash.activeRunSpaceDomains = @()
-# Load xaml and 
+
+# Load xaml 
 $XamlMainWindow = Set-XML("$Global:scriptLocation\resources\main.xaml")
 $Reader = (New-Object System.Xml.XmlNodeReader $XamlMainWindow)
 $Global:syncHash.Window = [Windows.Markup.XamlReader]::Load($Reader)
-
 $Global:syncHash.Window.Title = "ADAM - Active Directory Account Manager"
 
 # Grid for displaying results
@@ -61,6 +49,7 @@ $syncHash.tabAdmin = $syncHash.Window.FindName("tabAdmin")
 $syncHash.statusBarText = $syncHash.Window.FindName("statusBarText")
 $syncHash.statusBarProgress = $syncHash.Window.FindName("statusBarProgress")
 $syncHash.statusBarBorder = $syncHash.Window.FindName("statusBarBorder")
+
 # Put statusbar content in the right Z order
 [System.Windows.Controls.Canvas]::SetZIndex($syncHash.statusBarBorder, 1)
 [System.Windows.Controls.Canvas]::SetZIndex($syncHash.statusBarProgress, 2)
@@ -95,16 +84,17 @@ $btnAccent += $syncHash.Window.FindName("btnAccentBrown")
 $btnAccent += $syncHash.Window.FindName("btnAccentSteel")
 $btnAccent += $syncHash.Window.FindName("btnAccentMauve")
 $btnAccent += $syncHash.Window.FindName("btnAccentSienna")
+
 # Add color change function to all buttons
-$btnAccent | ForEach-Object { $_.Add_Click( {Set-AccentColor $this})}
-$btnThemeWhite.Add_Click( {Set-ThemeSkin $this})
-$btnThemeBlack.Add_Click( {Set-ThemeSkin $this})
+$btnAccent | ForEach-Object { $_.Add_Click( { Set-AccentColor $this }) }
+$btnThemeWhite.Add_Click( { Set-ThemeSkin $this })
+$btnThemeBlack.Add_Click( { Set-ThemeSkin $this })
 
 #######################################
 ######## Password Change tab 
 ##########################
-
 $Global:btnSearchAccounts = $syncHash.Window.FindName("btnSearchAccounts")
+
 $btnSearchAccounts.Add_Click(
     {
         Get-AllDomainAccounts
@@ -116,6 +106,7 @@ $btnSearchAccounts.Add_Click(
     })
 
 $Global:pwdBoxCur = $syncHash.Window.FindName("pwdBoxCur")
+
 $pwdBoxCur.Add_PasswordChanged(
     {	
         TextBoxPasswordHandler $_.KeyCode $pwdBoxCur.SecurePassword $pwdVerBtn
@@ -123,13 +114,13 @@ $pwdBoxCur.Add_PasswordChanged(
 
 $pwdBoxCur.Add_KeyDown( {
         param ($sender, $e)
-        if ($e.Key -eq 'Return' -or $e.Key -eq 'Enter')
-        {
+        if ($e.Key -eq 'Return' -or $e.Key -eq 'Enter') {
             Test-AllCredentials
         }
     })
 
 $Global:pwdVerBtn = $syncHash.Window.FindName("pwdVerBtn")
+
 $pwdVerBtn.Add_Click(
     {	
         Test-AllCredentials
@@ -152,16 +143,14 @@ $pwdBoxNew2.Add_PasswordChanged(
 
 $pwdBoxNew1.Add_KeyDown( {	
         param ($sender, $e)
-        if ($setNewPswdBtn.IsEnabled -eq $true -and ($e.Key -eq 'Return' -or $e.Key -eq 'Enter'))
-        {
+        if ($setNewPswdBtn.IsEnabled -eq $true -and ($e.Key -eq 'Return' -or $e.Key -eq 'Enter')) {
             Set-AllCredentials $togglePwRnd $togglePwInd
         }
     })
 
 $pwdBoxNew2.Add_KeyDown( {	
         param ($sender, $e)
-        if ($setNewPswdBtn.IsEnabled -eq $true -and ($e.Key -eq 'Return' -or $e.Key -eq 'Enter'))
-        {
+        if ($setNewPswdBtn.IsEnabled -eq $true -and ($e.Key -eq 'Return' -or $e.Key -eq 'Enter')) {
             Set-AllCredentials $togglePwRnd $togglePwInd
         }
     })
@@ -194,33 +183,6 @@ $togglePwRnd.Add_Click(
         $togglePwInd.IsEnabled = $togglePwRnd.IsChecked
 
     })
-
-#######################################
-######## Offboarding tab 
-##########################
-
-$Global:userBoxDisable = $syncHash.Window.FindName("userBoxDisable")
-$userBoxDisable.Add_TextChanged( { Set-BtnEnabledByTextLength -current $userBoxDisable.Text.Length -minimum 5 -maximum 7 -button $btnDisable})
-$Global:btnDisable = $syncHash.Window.FindName("btnDisable")
-$btnDisable.Add_Click( {Get-OffboardingAccounts})
-
-$Global:passwordBoxCurrent = $syncHash.Window.FindName("passwordBoxCurrent")
-$passwordBoxCurrent.Add_PasswordChanged( { TextBoxPasswordHandler $_.KeyCode $passwordBoxCurrent.SecurePassword $btnAdminPswd})
-$Global:btnAdminPswd = $syncHash.Window.FindName("btnAdminPswd")
-
-$Global:userBoxTicket = $syncHash.Window.FindName("userBoxTicket")
-$userBoxTicket.Add_TextChanged( { Set-BtnEnabledByTicketNumber -text $userBoxTicket.Text -button $Global:btnOffboard})
-$Global:btnOffboard = $syncHash.Window.FindName("btnOffboard")
-
-$Global:btnOffboardToClip = $syncHash.Window.FindName("btnOffboardToClip")
-$btnOffboardToClip.Add_Click( {
-        #Set-Clipboard -Value $syncHash.offboardingMessage
-        $syncHash.offboardingMessage | clip.exe
-    })
-
-$syncHash.offboToggleDisable = $syncHash.Window.FindName("toggleDisable")
-$syncHash.offboToggleRemoveGrps = $syncHash.Window.FindName("toggleRemoveGrps")
-$syncHash.offboToggleMoveDis = $syncHash.Window.FindName("toggleMoveDis")
 
 #######################################
 ######## Fly out
@@ -256,27 +218,11 @@ $Global:btnFlyOut.Add_Click(
         $syncHash.flyOut.IsOpen = (!($syncHash.flyOut.IsOpen))
     })
 
-
-$btnAdminPswd.Add_Click(
-    {	
-        Test-AllCredentials
-    })
-
-$btnOffboard.Add_Click(
-    {	
-        Disable-OffboardingAccounts
-    })
-
-
-$Global:toggleIsTop.Add_Click( {Set-WindowStayTop})
+$Global:toggleIsTop.Add_Click( { Set-WindowStayTop })
 
 #######################################
 ######## XML datatemplate and bindings
 ##########################
-
-##############
-# current user tab Datatemp
-##############
 
 ###### Verify password data template
 # Find gridviewcolumn we will attach our datatemplate to
@@ -289,9 +235,11 @@ $bindPwdVisibility = New-Object System.Windows.Data.Binding
 $bindPwdVisibility.path = "pswdVerifyBtnVisible"
 $bindPwdEnabled = New-Object System.Windows.Data.Binding
 $bindPwdEnabled.path = "pswdVerifyBtnEnabled"
+
 # Create button factory
 $buttonFactory = New-Object System.Windows.FrameworkElementFactory([System.Windows.Controls.Button])
 $buttonFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, [System.Windows.RoutedEventHandler]$funcTestCredentials)
+
 # Add bindings
 $buttonFactory.SetBinding([System.Windows.Controls.Button]::ContentProperty, $bindPwdCurText)
 $buttonFactory.SetBinding([System.Windows.Controls.Button]::VisibilityProperty, $bindPwdVisibility)
@@ -326,26 +274,6 @@ $buttonFactory.SetValue([System.Windows.Controls.Button]::ContentProperty, "Copy
 # Add bindings
 $buttonFactory.SetBinding([System.Windows.Controls.Button]::VisibilityProperty, $clipBoardBtnVisible)
 $dataTempClipBoard.CellTemplate.VisualTree = $buttonFactory
-
-
-##############
-# offboarding tab Datatemp
-##############
-
-# Find gridviewcolumn we will attach our datatemplate to
-$adminPswdGrid = $syncHash.Window.FindName("adminPswdGrid")
-# Create bindings
-$bindPwdCurText.path = "pswdVerifyBtnText"
-$bindPwdVisibility.path = "pswdVerifyBtnVisible"
-$bindPwdEnabled.path = "pswdVerifyBtnEnabled"
-# Create button factory
-$buttonFactory = New-Object System.Windows.FrameworkElementFactory([System.Windows.Controls.Button])
-$buttonFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, [System.Windows.RoutedEventHandler]$funcTestCredentials)
-# Add bindings
-$buttonFactory.SetBinding([System.Windows.Controls.Button]::ContentProperty, $bindPwdCurText)
-$buttonFactory.SetBinding([System.Windows.Controls.Button]::VisibilityProperty, $bindPwdVisibility)
-$buttonFactory.SetBinding([System.Windows.Controls.Button]::IsEnabledProperty, $bindPwdEnabled)
-$adminPswdGrid.CellTemplate.VisualTree = $buttonFactory
 
 #######################################
 ######## Run main functions
