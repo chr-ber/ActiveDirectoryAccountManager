@@ -16,13 +16,14 @@ It is written completley in PowerShell but utilizing .NET Framework classes and 
 ## Features
 
 * Change all your Active Directory user passwords in one place
-* Set one password for all your accounts (obviously less secure and might conflict with your company’s password policy)
-* Set a different password for each of your accounts
-* Set one or multiple random passwords at once
-* Global configuration for domains (once setup for all users)
-* User based settings for
+* Multiple options for setting the passwords:
+  * Set one password for all your accounts (obviously less secure and might conflict with your company’s password policy)
+  * Set a different password for each of your accounts
+  * Instead of manually typing a password, choose to set one or multiple random passwords, receive it via one of the **Copy to Clipboard** buttons.
+* User based settings are stored between sessions
   * Color theme options
-  * Window stay on top
+  * Window state, position and size
+  * **Window stay on top** choice
 
 ## How it Works
 
