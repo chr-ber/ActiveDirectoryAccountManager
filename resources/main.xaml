@@ -118,7 +118,7 @@
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn Header="Domain" DisplayMemberBinding ="{Binding 'domainName'}" Width="100"/>
+                                    <GridViewColumn Header="Domain" DisplayMemberBinding ="{Binding 'domainDisplayName'}" Width="100"/>
                                     <GridViewColumn Header="Account" DisplayMemberBinding ="{Binding 'samAccount'}" Width="75"/>
                                     <GridViewColumn Header="Display Name" DisplayMemberBinding ="{Binding 'displayName'}" Width="120"/>
                                     <GridViewColumn Header="Expires In" DisplayMemberBinding ="{Binding 'expiresIn'}" Width="80"/>

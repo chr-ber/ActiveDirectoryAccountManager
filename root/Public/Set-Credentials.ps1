@@ -28,7 +28,7 @@ Function Set-Credentials
 
     if ($Whatif)
     {
-        Write-Host "Running WhatIf on Set-Credentials for domain account: " $userObject.samAccount " | domain server: " $userObject.domainName
+        Write-Host "Running WhatIf on Set-Credentials for domain account: " $userObject.samAccount " | domain server: " $userObject.domainDisplayName
 
         If ($Random -eq $true)
         {
@@ -51,9 +51,9 @@ Function Set-Credentials
 
     try
     {
-        Write-Host "Running Set-Credentials: " $userObject.samAccount " | doomain server: " $userObject.domainName
+        Write-Host "Running Set-Credentials: " $userObject.samAccount " | doomain server: " $userObject.domainDisplayName
 
-        $credentials = new-object -typename System.Management.Automation.PSCredential(($userObject.domainBase + "\" + $userObject.samAccount), $userObject.pswdVer)
+        $credentials = new-object -typename System.Management.Automation.PSCredential(($userObject.domainName + "\" + $userObject.samAccount), $userObject.pswdVer)
     
         If ($Random -eq $true)
         {
@@ -84,7 +84,7 @@ Function Set-Credentials
         }
 
 
-        Write-Host "Change-Password: Successfully changed password for "$userObject.domainBase"\"$userObject.samAccount
+        Write-Host "Change-Password: Successfully changed password for "$userObject.domainName"\"$userObject.samAccount
 
         $userObject.pswdNew = $newPassword
 

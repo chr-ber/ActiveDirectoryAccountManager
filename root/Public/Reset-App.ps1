@@ -57,16 +57,16 @@
         {
             if ($i -eq 1)
             {
-                $Global:dbUser += @([pscustomobject]@{IsEnabled = "true"; IsChecked = "true"; domainName = $domain.domainName; samAccount = ""; displayName = ""; expiresIn = ""; accountStatus = ""; pswdVer = ""; pswdVerifyBtnText = "Set current password"; pswdVerifyBtnVisible = "Hidden"; pswdVerifyBtnEnabled = $true; pswdSetBtnText = "Set new password"; pswdSetBtnVisible = "Hidden"; pswdSetBtnEnabled = $true; clipBoardBtnVisible = "Hidden"; pswdNew = ""; dc = $domain.dc; domainBase = $domain.domainBase;})
+                $Global:dbUser += @([pscustomobject]@{IsEnabled = "true"; IsChecked = "true"; domainDisplayName = $domain.domainDisplayName; samAccount = ""; displayName = ""; expiresIn = ""; accountStatus = ""; pswdVer = ""; pswdVerifyBtnText = "Set current password"; pswdVerifyBtnVisible = "Hidden"; pswdVerifyBtnEnabled = $true; pswdSetBtnText = "Set new password"; pswdSetBtnVisible = "Hidden"; pswdSetBtnEnabled = $true; clipBoardBtnVisible = "Hidden"; pswdNew = ""; dc = $domain.dc; domainName = $domain.domainName;})
             }
             else
             {
-                $Global:dbUser += @([pscustomobject]@{IsVisible = "Hidden"; IsEnabled = ""; IsChecked = ""; domainName = ""; samAccount = ""; displayName = ""; expiresIn = ""; accountStatus = ""; pswdVer = ""; pswdVerifyBtnText = "Set current password"; pswdVerifyBtnVisible = "Hidden"; pswdVerifyBtnEnabled = $true; pswdSetBtnText = "Set new password"; pswdSetBtnVisible = "Hidden"; pswdSetBtnEnabled = $true; clipBoardBtnVisible = "Hidden"; pswdNew = ""; dc = ""; domainBase = ""; adObject = ""})
+                $Global:dbUser += @([pscustomobject]@{IsVisible = "Hidden"; IsEnabled = ""; IsChecked = ""; domainDisplayName = ""; samAccount = ""; displayName = ""; expiresIn = ""; accountStatus = ""; pswdVer = ""; pswdVerifyBtnText = "Set current password"; pswdVerifyBtnVisible = "Hidden"; pswdVerifyBtnEnabled = $true; pswdSetBtnText = "Set new password"; pswdSetBtnVisible = "Hidden"; pswdSetBtnEnabled = $true; clipBoardBtnVisible = "Hidden"; pswdNew = ""; dc = ""; domainName = ""; adObject = ""})
             }
         }
     }
 
-    $Global:dbUser = $Global:dbUser | Sort-Object -Property DomainName -Descending
+    $Global:dbUser = $Global:dbUser | Sort-Object -Property DomainDisplayName -Descending
 
     # Add pscustomojbect to each listview and refresh the gui
     $Global:userListView.ItemsSource = $Global:dbUser

@@ -2,7 +2,7 @@
 {
     if ($whatif)
     {
-        Write-Host "Running WhatIf on Test-Credentials for domain account: " $userObject.samAccount " | doomain server: " $userObject.domainName
+        Write-Host "Running WhatIf on Test-Credentials for domain account: " $userObject.samAccount " | doomain server: " $userObject.domainDisplayName
         If ((Get-Random -Maximum 10) -gt 4)
         {
             return $true
@@ -15,7 +15,7 @@
 
     try
     {
-        Write-Host "Running Test-Credentials: " $userObject.samAccount " | doomain server: " $userObject.domainName
+        Write-Host "Running Test-Credentials: " $userObject.samAccount " | doomain server: " $userObject.domainDisplayName
         
         if ($pswd.GetType().Name -eq "SecureString")
         {
@@ -39,7 +39,7 @@
             {
                 "tabUser"
                 {
-                    RunspacePing -userListView $Global:userListView -dbUser $Global:dbUser -syncHash $syncHash -samAccountName $env:USERNAME -dc $userObject.dc -domainName $userObject.domainName -credentials $credentials
+                    RunspacePing -userListView $Global:userListView -dbUser $Global:dbUser -syncHash $syncHash -samAccountName $env:USERNAME -dc $userObject.dc -domainDisplayName $userObject.domainDisplayName -credentials $credentials
                 }
                 "tabAdmin"
                 {
@@ -47,7 +47,7 @@
                 }
                 "tabOffboarding"
                 {
-                    Set-RunSpaceOffboarding -offboardingListView $Global:offboardingListView -dbOffboarding $Global:dbOffboarding -syncHash $syncHash -adminAccount $env:USERNAME -userAccount $syncHash.userBoxDisable.Text -dc $userObject.dc -domainName $userObject.domainName -domainBase $userObject.domainBase -credentials $credentials -task search
+                    Set-RunSpaceOffboarding -offboardingListView $Global:offboardingListView -dbOffboarding $Global:dbOffboarding -syncHash $syncHash -adminAccount $env:USERNAME -userAccount $syncHash.userBoxDisable.Text -dc $userObject.dc -domainDisplayName $userObject.domainDisplayName -domainName $userObject.domainName -credentials $credentials -task search
                 }
             }
         }

@@ -19,7 +19,7 @@
 
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        $domainName,
+        $domainDisplayName,
 
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
@@ -59,7 +59,7 @@
     $Runspace.SessionStateProxy.SetVariable("syncHash", $syncHash) 
     $Runspace.SessionStateProxy.SetVariable("samAccountName", $samAccountName)
     $Runspace.SessionStateProxy.SetVariable("dc", $dc)
-    $Runspace.SessionStateProxy.SetVariable("domainName", $domainName)
+    $Runspace.SessionStateProxy.SetVariable("domainDisplayName", $domainDisplayName)
     $Runspace.SessionStateProxy.SetVariable("whatIf", $whatIf)
     $Runspace.SessionStateProxy.SetVariable("userListView", $userListView)
     $Runspace.SessionStateProxy.SetVariable("dbUser", $dbUser)
@@ -91,7 +91,7 @@
 
                 # Search for a matching entry in our current database
                 foreach ($dbEntry in $dbUser) {
-                    If ($dbEntry.domainName -eq $user.domainName) {
+                    If ($dbEntry.domainDisplayName -eq $user.domainDisplayName) {
                         If (($dbEntry.SamAccount -like "" ) -or ($user.SamAccountName -eq $dbEntry.SamAccount)) {
                             $entryFound = $true
                             $dbLink = $dbEntry
@@ -104,9 +104,9 @@
                 # If no entry has been found create one
                 If ($entryFound -eq $false) {
                     foreach ($dbEntry in $dbUser) {
-                        If ($dbEntry.domainName -eq "") {
+                        If ($dbEntry.domainDisplayName -eq "") {
                             $dbLink = $dbEntry
-                            $dbLink.domainBase = $dbUser[$index].domainBase
+                            $dbLink.domainName = $dbUser[$index].domainName
                             $dbLink.dc = $dbUser[$index].dc
                             break
                         }
@@ -115,7 +115,7 @@
 
                 # Set minimal information in case entry requires search with credentials
                 $dbLink.accountStatus = $user.status
-                $dbLink.domainName = $user.domainName
+                $dbLink.domainDisplayName = $user.domainDisplayName
 
                 # If user entry has been passed
                 If ($user.SamAccountName) {
@@ -283,7 +283,7 @@
             $adAccount | Add-Member -NotePropertyName status -NotePropertyValue $accountStatus -Force
         }
         # Add domain part
-        $adAccounts | Add-Member -NotePropertyName domainName -NotePropertyValue $domainName -Force
+        $adAccounts | Add-Member -NotePropertyName domainDisplayName -NotePropertyValue $domainDisplayName -Force
 
         # If only admin account has been requested
         If ($returnAdmin -eq $true -and $adAccounts.Count -gt 1) {
@@ -296,7 +296,7 @@
 
         If ($syncHash.activeRunspaces -eq 0) {
             $syncHash.Window.Dispatcher.invoke([action] {
-                    $Global:dbUser = $Global:dbUser | Sort-Object -Property domainName -Descending
+                    $Global:dbUser = $Global:dbUser | Sort-Object -Property domainDisplayName -Descending
                     $userListView.ItemsSource = $Global:dbUser
                     $userListView.Items.Refresh()
                     $syncHash.statusBarProgress.IsIndeterminate = $false

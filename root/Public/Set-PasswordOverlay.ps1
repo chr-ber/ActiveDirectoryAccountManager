@@ -14,8 +14,8 @@
     $dialogSettings.NegativeButtonVisibility = "Visible"
     $dialogSettings.PasswordWatermark = "domain password"
 
-    $domainUser = $dataContext.domainBase + "\" + $dataContext.samAccount
-    $message = "Enter your credentials for " + $dataContext.domainName
+    $domainUser = $dataContext.domainName + "\" + $dataContext.samAccount
+    $message = "Enter your credentials for " + $dataContext.domainDisplayName
     
 	$Global:dialogManager = [MahApps.Metro.Controls.Dialogs.DialogManager]::ShowModalLoginExternal($syncHash.Window,$message,"$domainUser",$dialogSettings)
     If($dialogManager.SecurePassword.Length -eq 0)

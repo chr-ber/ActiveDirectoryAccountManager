@@ -8,7 +8,7 @@
     {
         If ($domain.isChecked -eq $true)
         {
-            RunspacePing -userListView $Global:userListView -dbUser $Global:dbUser -syncHash $syncHash -samAccountName $env:USERNAME -dc $domain.dc -domainName $domain.domainName
+            RunspacePing -userListView $Global:userListView -dbUser $Global:dbUser -syncHash $syncHash -samAccountName $env:USERNAME -dc $domain.dc -domainDisplayName $domain.domainDisplayName
         }
     }
 }

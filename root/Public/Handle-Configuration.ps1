@@ -20,7 +20,7 @@
 
         # Build root configuration from config file
         foreach ($line in $config) {
-            $Global:rootConfig += @([pscustomobject]@{domainName = $line.DomainName; dc = ($line.DomainController + "." + $line.DomainBase); domainBase = $line.DomainBase;})
+            $Global:rootConfig += @([pscustomobject]@{domainDisplayName = $line.DomainDisplayName; dc = ($line.DomainController + "." + $line.DomainName); domainName = $line.DomainName;})
         }
 
         # Load configuration if file exists
@@ -46,7 +46,7 @@
             # Set defaults
             $syncHash.Window.Height = 600
             $syncHash.Window.WindowState = "Normal"
-            $syncHash.Window.Width = 800
+            $syncHash.Window.Width = 1200
             $syncHash.ThemeSkin = "BaseDark"
             $syncHash.ThemeAccent = "Cobalt"
             $syncHash.Window.Top = 0
