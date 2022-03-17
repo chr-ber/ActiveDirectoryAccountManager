@@ -270,7 +270,7 @@ $clipBoardBtnVisible = New-Object System.Windows.Data.Binding
 $clipBoardBtnVisible.path = "clipBoardBtnVisible"
 $buttonFactory = New-Object System.Windows.FrameworkElementFactory([System.Windows.Controls.Button])
 $buttonFactory.AddHandler([System.Windows.Controls.Button]::ClickEvent, [System.Windows.RoutedEventHandler]$funcCopyToClipBoard)
-$buttonFactory.SetValue([System.Windows.Controls.Button]::ContentProperty, "Copy to clip board")
+$buttonFactory.SetValue([System.Windows.Controls.Button]::ContentProperty, "Copy to Clipboard")
 # Add bindings
 $buttonFactory.SetBinding([System.Windows.Controls.Button]::VisibilityProperty, $clipBoardBtnVisible)
 $dataTempClipBoard.CellTemplate.VisualTree = $buttonFactory
