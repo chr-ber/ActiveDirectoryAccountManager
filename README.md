@@ -1,18 +1,18 @@
 # ActiveDirectoryAccountManager
 
-This desktop application was created to allow IT engineers to quickly and effectively  change all their Active Directory passwords across multiple domains.
+This desktop application was created to allow IT engineers to quickly and effectively change all their Active Directory passwords across multiple domains.
 
 ![Application Image](https://raw.githubusercontent.com/ChrisLeeBearger/ActiveDirectoryAccountManager/master/doc/app_image_01.png)
 
 ## Features
 
 * Change all your Active Directory user passwords in one place
-* Set one password for all your accounts (obviously less secure and might conflict with your companies password policy)
+* Set one password for all your accounts (obviously less secure and might conflict with your company’s password policy)
 * Set a different password for each of your accounts
 * Set one or multiple random passwords at once
 * Global configuration for domains (once setup for all users)
 * User based settings for
-  * Color theme
+  * Color theme options
   * Window stay on top
 
 ## How it Works
@@ -20,7 +20,7 @@ This desktop application was created to allow IT engineers to quickly and effect
 * Searches user accounts in all configured domains based on the [sAMAccountName](https://docs.microsoft.com/en-us/windows/win32/ad/naming-properties#samaccountname) of the user currently running the app. This means that relevant user accounts are only found in case there is a naming convention applied to the sAMAccountName across all domains. (e.g.  DOMAIN1\\**jdoe**, DOMAIN2\\**jdoe**, DOMAIN3\\**jdoe**,...)
 * Current password and new password can be set either for all user accounts at once or individually
 * Password can only be changed before expiration. If an expired user account is found it will be automatically unchecked and ignored
-* The initial search is performed with the currently logged in user, only if their is a domain trust setup user accounts within other domains are found immediately. If this is not in place the search will be performed again with domain local credentials as soon as a password has been provided
+* The initial search is performed with the currently logged in user, only if there is a domain trust setup user accounts within other domains are found immediately. If this is not in place the search will be performed again with domain local credentials as soon as a password has been provided
 * The password change will be performed with the provided credentials entered in one of the "Current Password" fields. There is no super user required for the app to work
 * All credentials are held in memory as [SecureString](https://docs.microsoft.com/en-us/dotnet/api/system.security.securestring)
 
@@ -39,7 +39,7 @@ This desktop application was created to allow IT engineers to quickly and effect
 ## Getting Started
 1. Make sure that all points under requirements are in place
 2. Clone the repository and open the [config.csv](https://github.com/ChrisLeeBearger/ActiveDirectoryAccountManager/blob/master/config.csv) file
-3. Remove all of the example domains from the file
+3. Remove all the example domain entries from the file
 4. Add the domains that should be searched for accounts
 5. You are done, start the app via adam.exe and begin searching for your user accounts
 
@@ -69,7 +69,7 @@ This file is generated on the first close of the application and stores choices 
 | Width  | Window width in pixels | 1200 |
 | Top  | Pixel offset from top  | 0 |
 | Left  | Pixel offset from left  | 0 |
-| ThemeSkin  | Stores selction between dark and light base theme | BaseDark |
+| ThemeSkin  | Selected base skin (BaseLight, BaseDark) | BaseDark |
 | ThemeAccent  | Accent color of the theme  | Cobalt |
 | WindowStayTop  | If true, window will position itself on top of other windows, even if focus is lost  | true |
 | WindowState  | Specifies whether a window is minimized, maximized, or restored. [WindowState Enum](https://docs.microsoft.com/en-us/dotnet/api/system.windows.windowstate)  | Normal |
