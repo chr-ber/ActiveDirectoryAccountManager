@@ -55,8 +55,8 @@ The domains need to be configured in the [config.csv](https://github.com/ChrisLe
 |Column| Description | Example |
 | ------------- | ------------- | ------------- | 
 | DomainDisplayName  | The name that is going to be displayed | Contoso |
-| DomainController  | Hostname of the domain controller that will be used to change the password | contoso-dc1 |
-| DomainName  | The full qualified domain name  | contoso.lan |
+| DomainController  | Hostname of the domain controller | contoso-dc1 |
+| DomainName  | The domain name, will be used in combination with the value provided in the DomainController field to construct the dc's fqdn | contoso.lan |
 
 ### User Based Configuration
 
