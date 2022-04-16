@@ -4,14 +4,16 @@ This desktop application was created to allow IT engineers to quickly and effect
 
 It is written completley in PowerShell but utilizing .NET Framework classes and assemblies.
 
-![Application Image](https://raw.githubusercontent.com/ChrisLeeBearger/ActiveDirectoryAccountManager/master/doc/app_image_01.png)
-
 ## Technologies
 
 * [PowerShell](https://docs.microsoft.com/en-us/PowerShell/)
 * [Windows Forms](https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms)
 * [XAML](https://docs.microsoft.com/en-us/visualstudio/xaml-tools/xaml-overview)
 * [MahApps](https://mahapps.com/)
+
+## Demo
+
+[![Application Image](https://raw.githubusercontent.com/ChrisLeeBearger/ActiveDirectoryAccountManager/master/doc/youtube-thumbnail.png)](https://youtu.be/NSNHkXpXA48)
 
 ## Features
 
