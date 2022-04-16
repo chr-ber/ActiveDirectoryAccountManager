@@ -13,7 +13,7 @@ It is written completley in PowerShell but utilizing .NET Framework classes and 
 
 ## Demo
 
-[![Application Image](https://raw.githubusercontent.com/ChrisLeeBearger/ActiveDirectoryAccountManager/master/doc/youtube-thumbnail.png)](https://youtu.be/NSNHkXpXA48)
+[![Application Image](https://raw.githubusercontent.com/chr-ber/ActiveDirectoryAccountManager/master/doc/youtube-thumbnail.png)](https://youtu.be/NSNHkXpXA48)
 
 ## Features
 
@@ -43,7 +43,7 @@ It is written completley in PowerShell but utilizing .NET Framework classes and 
 
 ## Getting Started
 1. Make sure that all points under requirements are in place
-2. Clone the repository and open the [config.csv](https://github.com/ChrisLeeBearger/ActiveDirectoryAccountManager/blob/master/config.csv) file
+2. Clone the repository and open the [config.csv](https://github.com/chr-ber/ActiveDirectoryAccountManager/blob/master/config.csv) file
 3. Remove all the example domain entries from the file
 4. Add the domains that should be searched for accounts
 5. You are done, start the app via adam.exe and begin searching for your user accounts
@@ -52,7 +52,7 @@ It is written completley in PowerShell but utilizing .NET Framework classes and 
 
 ### Global Configuration
 
-The domains need to be configured in the [config.csv](https://github.com/ChrisLeeBearger/ActiveDirectoryAccountManager/blob/master/config.csv) file located in the root folder of the app. This configuration will apply to all users starting the app, if each user must have a different set of domains its required to have multiple installations of this repository.
+The domains need to be configured in the [config.csv](https://github.com/chr-ber/ActiveDirectoryAccountManager/blob/master/config.csv) file located in the root folder of the app. This configuration will apply to all users starting the app, if each user must have a different set of domains its required to have multiple installations of this repository.
 
 |Column| Description | Example |
 | ------------- | ------------- | ------------- | 
@@ -66,7 +66,7 @@ User based settings are stored under `%appdata%\ActiveDirectoryAccountManager_cb
 
 This file is generated on the first close of the application and stores choices made in the settings flyout and various fields of the application window.
 
-![Settings Image](https://raw.githubusercontent.com/ChrisLeeBearger/ActiveDirectoryAccountManager/master/doc/app_image_02_settings.png)
+![Settings Image](https://raw.githubusercontent.com/chr-ber/ActiveDirectoryAccountManager/master/doc/app_image_02_settings.png)
 
 |Column| Description | Default |
 | ------------- | ------------- | ------------- | 
